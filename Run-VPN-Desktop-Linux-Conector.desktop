@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Conectar VPN
+Comment=Aplicación para conectar a OpenVPN
+Exec=python3 /home/YOUR-USER/Documentos/VPN-Desktop-Linux-Conector.py
+Icon=network-vpn
+Terminal=false
+Categories=Network;
