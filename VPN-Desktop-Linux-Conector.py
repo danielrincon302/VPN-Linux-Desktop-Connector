@@ -786,11 +786,36 @@ class VentanaVPN(Gtk.Window):
         vbox.set_margin_end(10)
         main_vbox.pack_start(vbox, True, True, 0)
 
+        # Contenedor horizontal principal para ícono (33%) y campos (67%)
+        hbox_principal = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
+        vbox.pack_start(hbox_principal, False, False, 0)
+
+        # Lado izquierdo: Ícono (33%)
+        icono_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        icono_box.set_halign(Gtk.Align.CENTER)
+        icono_box.set_valign(Gtk.Align.CENTER)
+        hbox_principal.pack_start(icono_box, True, True, 0)
+
+        # Cargar y mostrar el ícono
+        try:
+            from gi.repository import GdkPixbuf
+            icon_path = os.path.join(os.path.dirname(__file__), "icons", "ico-index.png")
+            if os.path.exists(icon_path):
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_path, 150, 150, True)
+                imagen_icono = Gtk.Image.new_from_pixbuf(pixbuf)
+                icono_box.pack_start(imagen_icono, False, False, 0)
+        except Exception as e:
+            print(f"No se pudo cargar el ícono ico-index.png: {e}")
+
+        # Lado derecho: Grid con campos (67%)
+        campos_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        hbox_principal.pack_start(campos_box, True, True, 0)
+
         # Grid para campos de usuario y contraseña
         grid = Gtk.Grid()
         grid.set_column_spacing(10)
         grid.set_row_spacing(10)
-        vbox.pack_start(grid, False, False, 0)
+        campos_box.pack_start(grid, True, True, 0)
 
         # Campo de Usuario
         self.label_usuario = Gtk.Label(label=self.t('label_user'))
@@ -2044,7 +2069,14 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
         self.status_menu = Gtk.Menu()
 
         # Opción: Abrir
-        self.menu_si_abrir = Gtk.MenuItem(label="Abrir")
+        self.menu_si_abrir = Gtk.MenuItem()
+        abrir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        abrir_icon = Gtk.Image.new_from_icon_name('document-open', Gtk.IconSize.MENU)
+        abrir_label = Gtk.Label(label="Abrir")
+        abrir_label.set_xalign(0)
+        abrir_box.pack_start(abrir_icon, False, False, 0)
+        abrir_box.pack_start(abrir_label, True, True, 0)
+        self.menu_si_abrir.add(abrir_box)
         self.menu_si_abrir.connect("activate", self.on_status_icon_abrir)
         self.status_menu.append(self.menu_si_abrir)
 
@@ -2052,27 +2084,62 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
         self.status_menu.append(Gtk.SeparatorMenuItem())
 
         # Estado
-        self.menu_si_estado = Gtk.MenuItem(label="Estado: Desconectado")
+        self.menu_si_estado = Gtk.MenuItem()
+        estado_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.menu_si_estado_icon = Gtk.Image.new_from_icon_name('dialog-error', Gtk.IconSize.MENU)  # Rojo para desconectado
+        self.menu_si_estado_label = Gtk.Label(label="Estado: Desconectado")
+        self.menu_si_estado_label.set_xalign(0)
+        estado_box.pack_start(self.menu_si_estado_icon, False, False, 0)
+        estado_box.pack_start(self.menu_si_estado_label, True, True, 0)
+        self.menu_si_estado.add(estado_box)
         self.menu_si_estado.set_sensitive(False)
         self.status_menu.append(self.menu_si_estado)
 
         # IP VPN
-        self.menu_si_ip_vpn = Gtk.MenuItem(label="IP VPN: No conectado")
+        self.menu_si_ip_vpn = Gtk.MenuItem()
+        ip_vpn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_vpn_icon = Gtk.Image.new_from_icon_name('changes-prevent', Gtk.IconSize.MENU)
+        self.menu_si_ip_vpn_label = Gtk.Label(label="IP VPN: No conectado")
+        self.menu_si_ip_vpn_label.set_xalign(0)
+        ip_vpn_box.pack_start(ip_vpn_icon, False, False, 0)
+        ip_vpn_box.pack_start(self.menu_si_ip_vpn_label, True, True, 0)
+        self.menu_si_ip_vpn.add(ip_vpn_box)
         self.menu_si_ip_vpn.set_sensitive(False)
         self.status_menu.append(self.menu_si_ip_vpn)
 
         # IP Local
-        self.menu_si_ip_local = Gtk.MenuItem(label="IP Local: Cargando...")
+        self.menu_si_ip_local = Gtk.MenuItem()
+        ip_local_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_local_icon = Gtk.Image.new_from_icon_name('network-wired', Gtk.IconSize.MENU)
+        self.menu_si_ip_local_label = Gtk.Label(label="IP Local: Cargando...")
+        self.menu_si_ip_local_label.set_xalign(0)
+        ip_local_box.pack_start(ip_local_icon, False, False, 0)
+        ip_local_box.pack_start(self.menu_si_ip_local_label, True, True, 0)
+        self.menu_si_ip_local.add(ip_local_box)
         self.menu_si_ip_local.set_sensitive(False)
         self.status_menu.append(self.menu_si_ip_local)
 
         # IP Pública
-        self.menu_si_ip_publica = Gtk.MenuItem(label="IP Pública: Cargando...")
+        self.menu_si_ip_publica = Gtk.MenuItem()
+        ip_publica_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_publica_icon = Gtk.Image.new_from_icon_name('network-transmit-receive', Gtk.IconSize.MENU)
+        self.menu_si_ip_publica_label = Gtk.Label(label="IP Pública: Cargando...")
+        self.menu_si_ip_publica_label.set_xalign(0)
+        ip_publica_box.pack_start(ip_publica_icon, False, False, 0)
+        ip_publica_box.pack_start(self.menu_si_ip_publica_label, True, True, 0)
+        self.menu_si_ip_publica.add(ip_publica_box)
         self.menu_si_ip_publica.set_sensitive(False)
         self.status_menu.append(self.menu_si_ip_publica)
 
         # Tipo de conexión
-        self.menu_si_conexion = Gtk.MenuItem(label="Conexión: Cargando...")
+        self.menu_si_conexion = Gtk.MenuItem()
+        conexion_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.menu_si_conexion_icon = Gtk.Image.new_from_icon_name('network-wired', Gtk.IconSize.MENU)  # Por defecto cableada
+        self.menu_si_conexion_label = Gtk.Label(label="Conexión: Cargando...")
+        self.menu_si_conexion_label.set_xalign(0)
+        conexion_box.pack_start(self.menu_si_conexion_icon, False, False, 0)
+        conexion_box.pack_start(self.menu_si_conexion_label, True, True, 0)
+        self.menu_si_conexion.add(conexion_box)
         self.menu_si_conexion.set_sensitive(False)
         self.status_menu.append(self.menu_si_conexion)
 
@@ -2080,7 +2147,14 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
         self.status_menu.append(Gtk.SeparatorMenuItem())
 
         # Opción: Salir
-        menu_si_salir = Gtk.MenuItem(label="Salir")
+        menu_si_salir = Gtk.MenuItem()
+        salir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        salir_icon = Gtk.Image.new_from_icon_name('application-exit', Gtk.IconSize.MENU)
+        salir_label = Gtk.Label(label="Salir")
+        salir_label.set_xalign(0)
+        salir_box.pack_start(salir_icon, False, False, 0)
+        salir_box.pack_start(salir_label, True, True, 0)
+        menu_si_salir.add(salir_box)
         menu_si_salir.connect("activate", self.on_status_icon_salir)
         self.status_menu.append(menu_si_salir)
 
@@ -2096,7 +2170,9 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
             # Obtener estado VPN
             if self.proceso and self.proceso.poll() is None:
                 estado = "Conectado"
-                GLib.idle_add(self.menu_si_estado.set_label, f"Estado: {estado} ✓")
+                GLib.idle_add(self.menu_si_estado_label.set_text, f"Estado: {estado} ✓")
+                # Cambiar ícono a verde (conectado)
+                GLib.idle_add(self.menu_si_estado_icon.set_from_icon_name, "emblem-default", Gtk.IconSize.MENU)
                 # Mantener el mismo ícono pero con tooltip actualizado
                 if os.path.exists(icon_path):
                     GLib.idle_add(self.status_icon.set_tooltip_text, "VPN Linux Desktop Connector - Conectado ✓")
@@ -2104,7 +2180,9 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
                     GLib.idle_add(self.status_icon.set_from_icon_name, "network-vpn-symbolic")
             else:
                 estado = "Desconectado"
-                GLib.idle_add(self.menu_si_estado.set_label, f"Estado: {estado}")
+                GLib.idle_add(self.menu_si_estado_label.set_text, f"Estado: {estado}")
+                # Cambiar ícono a rojo (desconectado)
+                GLib.idle_add(self.menu_si_estado_icon.set_from_icon_name, "dialog-error", Gtk.IconSize.MENU)
                 # Mantener el ícono pero actualizar tooltip
                 if os.path.exists(icon_path):
                     GLib.idle_add(self.status_icon.set_tooltip_text, "VPN Linux Desktop Connector - Desconectado")
@@ -2118,10 +2196,16 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
             tipo_conexion = obtener_tipo_conexion()
 
             # Actualizar menú en el hilo principal
-            GLib.idle_add(self.menu_si_ip_vpn.set_label, f"IP VPN: {ip_vpn}")
-            GLib.idle_add(self.menu_si_ip_local.set_label, f"IP Local: {ip_local}")
-            GLib.idle_add(self.menu_si_ip_publica.set_label, f"IP Pública: {ip_publica}")
-            GLib.idle_add(self.menu_si_conexion.set_label, f"Conexión: {tipo_conexion}")
+            GLib.idle_add(self.menu_si_ip_vpn_label.set_text, f"IP VPN: {ip_vpn}")
+            GLib.idle_add(self.menu_si_ip_local_label.set_text, f"IP Local: {ip_local}")
+            GLib.idle_add(self.menu_si_ip_publica_label.set_text, f"IP Pública: {ip_publica}")
+            GLib.idle_add(self.menu_si_conexion_label.set_text, f"Conexión: {tipo_conexion}")
+
+            # Cambiar ícono según el tipo de conexión
+            if "Wi-Fi" in tipo_conexion or "WiFi" in tipo_conexion or "inalámbrica" in tipo_conexion.lower():
+                GLib.idle_add(self.menu_si_conexion_icon.set_from_icon_name, "network-wireless", Gtk.IconSize.MENU)
+            else:
+                GLib.idle_add(self.menu_si_conexion_icon.set_from_icon_name, "network-wired", Gtk.IconSize.MENU)
 
         thread = threading.Thread(target=actualizar, daemon=True)
         thread.start()
