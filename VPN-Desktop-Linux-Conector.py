@@ -599,7 +599,7 @@ def obtener_tipo_conexion():
 class VentanaVPN(Gtk.Window):
     def __init__(self):
         super().__init__(title="VPN Linux Desktop Connector")
-        self.set_default_size(700, 500)
+        self.set_default_size(550, 500)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.proceso = None
         self.archivo_ovpn = None
@@ -801,7 +801,7 @@ class VentanaVPN(Gtk.Window):
             from gi.repository import GdkPixbuf
             icon_path = os.path.join(os.path.dirname(__file__), "icons", "ico-index.png")
             if os.path.exists(icon_path):
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_path, 150, 150, True)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_path, 120, 120, True)
                 imagen_icono = Gtk.Image.new_from_pixbuf(pixbuf)
                 icono_box.pack_start(imagen_icono, False, False, 0)
         except Exception as e:
@@ -817,57 +817,35 @@ class VentanaVPN(Gtk.Window):
         grid.set_row_spacing(10)
         campos_box.pack_start(grid, True, True, 0)
 
-        # Campo de Usuario
-        self.label_usuario = Gtk.Label(label=self.t('label_user'))
-        self.label_usuario.set_halign(Gtk.Align.END)
-        grid.attach(self.label_usuario, 0, 0, 1, 1)
-
+        # Campo de Usuario (sin etiqueta, solo placeholder)
         self.entry_usuario = Gtk.Entry()
-        self.entry_usuario.set_placeholder_text(self.t('placeholder_user'))
+        self.entry_usuario.set_placeholder_text(self.t('label_user').replace(':', ''))
         self.entry_usuario.set_hexpand(True)
-        grid.attach(self.entry_usuario, 1, 0, 1, 1)
+        grid.attach(self.entry_usuario, 0, 0, 1, 1)
 
-        # Campo de Contraseña
-        self.label_password = Gtk.Label(label=self.t('label_password'))
-        self.label_password.set_halign(Gtk.Align.END)
-        grid.attach(self.label_password, 0, 1, 1, 1)
-
+        # Campo de Contraseña (sin etiqueta, solo placeholder)
         self.entry_password = Gtk.Entry()
-        self.entry_password.set_placeholder_text(self.t('placeholder_password'))
+        self.entry_password.set_placeholder_text(self.t('label_password').replace(':', ''))
         self.entry_password.set_visibility(False)  # Ocultar contraseña
         self.entry_password.set_invisible_char('*')  # Mostrar asteriscos
         self.entry_password.set_hexpand(True)
-        grid.attach(self.entry_password, 1, 1, 1, 1)
+        grid.attach(self.entry_password, 0, 1, 1, 1)
 
-        # Campo de Archivo OVPN
-        self.label_ovpn = Gtk.Label(label=self.t('label_ovpn'))
-        self.label_ovpn.set_halign(Gtk.Align.END)
-        grid.attach(self.label_ovpn, 0, 2, 1, 1)
+        # Separador entre logo/campos y selector de archivo
+        vbox.pack_start(Gtk.Box(), False, False, 5)
 
-        self.boton_seleccionar_ovpn = Gtk.Button(label=self.t('btn_select_ovpn'))
+        # Botón selector de Archivo OVPN (100% ancho, sin etiqueta)
+        self.boton_seleccionar_ovpn = Gtk.Button(label=self.t('label_ovpn').replace(':', ''))
         self.boton_seleccionar_ovpn.connect("clicked", self.on_seleccionar_ovpn_clicked)
-        self.boton_seleccionar_ovpn.set_hexpand(True)
-        grid.attach(self.boton_seleccionar_ovpn, 1, 2, 1, 1)
+        vbox.pack_start(self.boton_seleccionar_ovpn, False, False, 0)
 
-        # Contenedor horizontal para botones
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        vbox.pack_start(hbox, False, False, 0)
+        # Botón combinado conectar/desconectar (100% ancho)
+        self.boton_conectar_desconectar = Gtk.Button(label=self.t('btn_connect'))
+        self.boton_conectar_desconectar.connect("clicked", self.on_toggle_conexion_clicked)
+        vbox.pack_start(self.boton_conectar_desconectar, False, False, 0)
 
-        # Botón para conectar
-        self.boton_conectar = Gtk.Button(label=self.t('btn_connect'))
-        self.boton_conectar.connect("clicked", self.on_conectar_clicked)
-        hbox.pack_start(self.boton_conectar, True, True, 0)
-
-        # Botón para desconectar
-        self.boton_desconectar = Gtk.Button(label=self.t('btn_disconnect'))
-        self.boton_desconectar.connect("clicked", self.on_desconectar_clicked)
-        self.boton_desconectar.set_sensitive(False)
-        hbox.pack_start(self.boton_desconectar, True, True, 0)
-
-        # Botón para limpiar logs
-        self.boton_limpiar = Gtk.Button(label=self.t('btn_clear'))
-        self.boton_limpiar.connect("clicked", self.on_limpiar_clicked)
-        hbox.pack_start(self.boton_limpiar, True, True, 0)
+        # Variable para rastrear el estado de conexión
+        self.conectado = False
 
         # Label de estado
         self.label_estado = Gtk.Label()
@@ -1252,26 +1230,24 @@ class VentanaVPN(Gtk.Window):
         self.donate_label.set_text(self.t('help_donate'))
         self.about_label.set_text(self.t('help_about'))
 
-        # Actualizar labels
-        self.label_usuario.set_text(self.t('label_user'))
-        self.label_password.set_text(self.t('label_password'))
-        self.label_ovpn.set_text(self.t('label_ovpn'))
+        # Actualizar placeholders (usando las etiquetas como placeholders)
+        self.entry_usuario.set_placeholder_text(self.t('label_user').replace(':', ''))
+        self.entry_password.set_placeholder_text(self.t('label_password').replace(':', ''))
 
-        # Actualizar placeholders
-        self.entry_usuario.set_placeholder_text(self.t('placeholder_user'))
-        self.entry_password.set_placeholder_text(self.t('placeholder_password'))
-
-        # Actualizar botones
+        # Actualizar botón selector OVPN
         if self.archivo_ovpn and '✓' in self.boton_seleccionar_ovpn.get_label():
             # Si ya hay un archivo seleccionado, mantener el ✓
             nombre_archivo = self.archivo_ovpn.split('/')[-1]
             self.boton_seleccionar_ovpn.set_label(f"✓ {nombre_archivo}")
         else:
-            self.boton_seleccionar_ovpn.set_label(self.t('btn_select_ovpn'))
+            # Si no hay archivo, mostrar "Archivo OVPN" como placeholder
+            self.boton_seleccionar_ovpn.set_label(self.t('label_ovpn').replace(':', ''))
 
-        self.boton_conectar.set_label(self.t('btn_connect'))
-        self.boton_desconectar.set_label(self.t('btn_disconnect'))
-        self.boton_limpiar.set_label(self.t('btn_clear'))
+        # Actualizar etiqueta del botón según el estado actual
+        if self.conectado:
+            self.boton_conectar_desconectar.set_label(self.t('btn_disconnect'))
+        else:
+            self.boton_conectar_desconectar.set_label(self.t('btn_connect'))
 
         # Actualizar estado según el estado actual
         current_markup = self.label_estado.get_label()
@@ -1411,9 +1387,9 @@ class VentanaVPN(Gtk.Window):
         self.agregar_texto(self.t('credentials_saved'))
         self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='orange'>{self.t('status_connecting')}</span>")
 
-        # Estado: Conectando - Deshabilitar Conectar, Habilitar Desconectar
-        self.boton_conectar.set_sensitive(False)
-        self.boton_desconectar.set_sensitive(True)
+        # Estado: Conectando - Cambiar botón a "Desconectar"
+        self.boton_conectar_desconectar.set_label(self.t('btn_disconnect'))
+        self.conectado = True
 
         # Ejecutar en un hilo separado
         thread = threading.Thread(target=self.ejecutar_vpn)
@@ -1425,9 +1401,8 @@ class VentanaVPN(Gtk.Window):
             self.agregar_texto(self.t('disconnecting_vpn'))
             self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='red'>{self.t('status_disconnecting')}</span>")
 
-            # Deshabilitar ambos botones mientras desconecta
-            self.boton_conectar.set_sensitive(False)
-            self.boton_desconectar.set_sensitive(False)
+            # Deshabilitar botón mientras desconecta
+            self.boton_conectar_desconectar.set_sensitive(False)
 
             try:
                 # Enviar SIGINT (Ctrl+C) en lugar de SIGTERM
@@ -1455,8 +1430,14 @@ class VentanaVPN(Gtk.Window):
         GLib.idle_add(self.agregar_texto, self.t('vpn_disconnected'))
         GLib.idle_add(self.reactivar_botones)
 
-    def on_limpiar_clicked(self, widget):
-        self.textbuffer.set_text("")
+    def on_toggle_conexion_clicked(self, widget):
+        """Función que alterna entre conectar y desconectar"""
+        if self.conectado:
+            # Si está conectado, desconectar
+            self.on_desconectar_clicked(widget)
+        else:
+            # Si está desconectado, conectar
+            self.on_conectar_clicked(widget)
 
     def ejecutar_vpn(self):
         try:
@@ -1554,9 +1535,10 @@ class VentanaVPN(Gtk.Window):
 
     def actualizar_estado_conectado(self):
         self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='green'>{self.t('status_connected')}</span>")
-        # Estado: Conectado - Deshabilitar Conectar, Habilitar Desconectar
-        self.boton_conectar.set_sensitive(False)
-        self.boton_desconectar.set_sensitive(True)
+        # Estado: Conectado - Cambiar botón a "Desconectar"
+        self.boton_conectar_desconectar.set_label(self.t('btn_disconnect'))
+        self.boton_conectar_desconectar.set_sensitive(True)
+        self.conectado = True
         return False
 
     def mostrar_error_conexion(self):
@@ -1583,9 +1565,10 @@ class VentanaVPN(Gtk.Window):
         return False
 
     def reactivar_botones(self):
-        # Estado: Desconectado - Habilitar Conectar, Deshabilitar Desconectar
-        self.boton_conectar.set_sensitive(True)
-        self.boton_desconectar.set_sensitive(False)
+        # Estado: Desconectado - Cambiar botón a "Conectar"
+        self.boton_conectar_desconectar.set_sensitive(True)
+        self.boton_conectar_desconectar.set_label(self.t('btn_connect'))
+        self.conectado = False
         self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='gray'>{self.t('status_disconnected')}</span>")
         return False
 
