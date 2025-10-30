@@ -33,6 +33,7 @@ TRADUCCIONES = {
         'theme_managerial': 'Gerencial',
         'theme_minimalist': 'Minimalista',
         'theme_dark': 'Oscuro',
+        'theme_modern': 'Moderno',
         'menu_language': 'Lenguaje',
         'menu_help': 'Ayuda',
         'help_manual': 'Manual de VPN Linux Desktop Connector',
@@ -96,6 +97,7 @@ TRADUCCIONES = {
         'theme_managerial': 'Managerial',
         'theme_minimalist': 'Minimalist',
         'theme_dark': 'Dark',
+        'theme_modern': 'Modern',
         'menu_language': 'Language',
         'menu_help': 'Help',
         'help_manual': 'VPN Linux Desktop Connector Manual',
@@ -159,6 +161,7 @@ TRADUCCIONES = {
         'theme_managerial': '管理风格',
         'theme_minimalist': '极简主义',
         'theme_dark': '暗黑',
+        'theme_modern': '现代',
         'menu_language': '语言',
         'menu_help': '帮助',
         'help_manual': 'VPN Linux Desktop Connector 手册',
@@ -222,6 +225,7 @@ TRADUCCIONES = {
         'theme_managerial': 'Gerencial',
         'theme_minimalist': 'Minimalista',
         'theme_dark': 'Escuro',
+        'theme_modern': 'Moderno',
         'menu_language': 'Idioma',
         'menu_help': 'Ajuda',
         'help_manual': 'Manual do VPN Linux Desktop Connector',
@@ -285,6 +289,7 @@ TRADUCCIONES = {
         'theme_managerial': 'Gestionnaire',
         'theme_minimalist': 'Minimaliste',
         'theme_dark': 'Sombre',
+        'theme_modern': 'Moderne',
         'menu_language': 'Langue',
         'menu_help': 'Aide',
         'help_manual': 'Manuel de VPN Linux Desktop Connector',
@@ -348,6 +353,7 @@ TRADUCCIONES = {
         'theme_managerial': 'Geschäftlich',
         'theme_minimalist': 'Minimalistisch',
         'theme_dark': 'Dunkel',
+        'theme_modern': 'Modern',
         'menu_language': 'Sprache',
         'menu_help': 'Hilfe',
         'help_manual': 'VPN Linux Desktop Connector Handbuch',
@@ -411,6 +417,7 @@ TRADUCCIONES = {
         'theme_managerial': 'ビジネス',
         'theme_minimalist': 'ミニマリスト',
         'theme_dark': 'ダーク',
+        'theme_modern': 'モダン',
         'menu_language': '言語',
         'menu_help': 'ヘルプ',
         'help_manual': 'VPN Linux Desktop Connector マニュアル',
@@ -599,7 +606,7 @@ def obtener_tipo_conexion():
 class VentanaVPN(Gtk.Window):
     def __init__(self):
         super().__init__(title="VPN Linux Desktop Connector")
-        self.set_default_size(550, 500)
+        self.set_default_size(352, 400)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.proceso = None
         self.archivo_ovpn = None
@@ -637,7 +644,7 @@ class VentanaVPN(Gtk.Window):
 
         # Submenú Temas
         self.menu_temas_item = Gtk.MenuItem()
-        temas_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        temas_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         temas_icon = Gtk.Image.new_from_icon_name('preferences-desktop-theme', Gtk.IconSize.MENU)
         self.temas_label = Gtk.Label(label=self.t('menu_themes'))
         self.temas_label.set_xalign(0)
@@ -653,13 +660,14 @@ class VentanaVPN(Gtk.Window):
         self.temas_info = [
             ('managerial', 'theme_managerial', 'x-office-document'),
             ('minimalist', 'theme_minimalist', 'view-list-compact-symbolic'),
-            ('dark', 'theme_dark', 'weather-clear-night')
+            ('dark', 'theme_dark', 'weather-clear-night'),
+            ('modern', 'theme_modern', 'preferences-desktop-display')
         ]
 
         self.tema_menu_items = {}
         for codigo, label_key, icono in self.temas_info:
             item = Gtk.MenuItem()
-            tema_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            tema_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
             tema_icon = Gtk.Image.new_from_icon_name(icono, Gtk.IconSize.MENU)
             tema_label = Gtk.Label(label=self.t(label_key))
             tema_label.set_xalign(0)
@@ -672,7 +680,7 @@ class VentanaVPN(Gtk.Window):
 
         # Submenú Idioma
         self.menu_idioma_item = Gtk.MenuItem()
-        idioma_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        idioma_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         idioma_icon = Gtk.Image.new_from_icon_name('preferences-desktop-locale', Gtk.IconSize.MENU)
         self.idioma_label = Gtk.Label(label=self.t('menu_language'))
         self.idioma_label.set_xalign(0)
@@ -718,7 +726,7 @@ class VentanaVPN(Gtk.Window):
 
         # Opción: Manual (F1)
         manual_item = Gtk.MenuItem(label=self.t('help_manual') + '\t\tF1')
-        manual_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        manual_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         manual_icon = Gtk.Image.new_from_icon_name('help-contents', Gtk.IconSize.MENU)
         self.manual_label = Gtk.Label(label=self.t('help_manual'))
         self.manual_label.set_xalign(0)
@@ -731,7 +739,7 @@ class VentanaVPN(Gtk.Window):
 
         # Opción: Informar de fallo
         bug_item = Gtk.MenuItem()
-        bug_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        bug_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         bug_icon = Gtk.Image.new_from_icon_name('dialog-warning', Gtk.IconSize.MENU)
         self.bug_label = Gtk.Label(label=self.t('help_report_bug'))
         self.bug_label.set_xalign(0)
@@ -743,7 +751,7 @@ class VentanaVPN(Gtk.Window):
 
         # Opción: Hacer un donativo
         donate_item = Gtk.MenuItem()
-        donate_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        donate_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         donate_icon = Gtk.Image.new_from_icon_name('emblem-favorite', Gtk.IconSize.MENU)
         self.donate_label = Gtk.Label(label=self.t('help_donate'))
         self.donate_label.set_xalign(0)
@@ -759,7 +767,7 @@ class VentanaVPN(Gtk.Window):
 
         # Opción: Acerca de
         about_item = Gtk.MenuItem()
-        about_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        about_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         about_icon = Gtk.Image.new_from_icon_name('help-about', Gtk.IconSize.MENU)
         self.about_label = Gtk.Label(label=self.t('help_about'))
         self.about_label.set_xalign(0)
@@ -779,15 +787,15 @@ class VentanaVPN(Gtk.Window):
                                      Gtk.AccelFlags.VISIBLE)
 
         # Contenedor principal
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        vbox.set_margin_top(10)
-        vbox.set_margin_bottom(10)
-        vbox.set_margin_start(10)
-        vbox.set_margin_end(10)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=7)
+        vbox.set_margin_top(7)
+        vbox.set_margin_bottom(7)
+        vbox.set_margin_start(7)
+        vbox.set_margin_end(7)
         main_vbox.pack_start(vbox, True, True, 0)
 
         # Contenedor horizontal principal para ícono (33%) y campos (67%)
-        hbox_principal = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
+        hbox_principal = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=11)
         vbox.pack_start(hbox_principal, False, False, 0)
 
         # Lado izquierdo: Ícono (33%)
@@ -856,6 +864,7 @@ class VentanaVPN(Gtk.Window):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_hexpand(True)
         scrolled.set_vexpand(True)
+        scrolled.set_size_request(-1, 60)
         vbox.pack_start(scrolled, True, True, 0)
 
         # TextView para mostrar la salida
@@ -913,7 +922,7 @@ class VentanaVPN(Gtk.Window):
             if os.path.exists('tema.txt'):
                 with open('tema.txt', 'r') as f:
                     tema = f.read().strip()
-                    temas_validos = ['managerial', 'minimalist', 'dark']
+                    temas_validos = ['managerial', 'minimalist', 'dark', 'modern']
                     if tema in temas_validos:
                         self.tema_actual = tema
         except Exception:
@@ -953,18 +962,18 @@ class VentanaVPN(Gtk.Window):
             }
 
             menubar {
-                background-color: #2c5282;
-                color: white;
-                border-bottom: 2px solid #1e3a5f;
+                background-color: #6eb5e0;
+                color: black;
+                border-bottom: 2px solid #5a9fd4;
             }
 
             menubar > menuitem {
-                color: white;
-                padding: 8px 15px;
+                color: black;
+                padding: 6px 11px;
             }
 
             menubar > menuitem:hover {
-                background-color: #3d6ca8;
+                background-color: #8dc5e8;
             }
 
             menu {
@@ -973,7 +982,7 @@ class VentanaVPN(Gtk.Window):
             }
 
             menuitem {
-                padding: 8px 20px;
+                padding: 6px 14px;
                 color: #2d3748;
             }
 
@@ -987,7 +996,7 @@ class VentanaVPN(Gtk.Window):
                 color: #2d3748;
                 border: 2px solid #cbd5e0;
                 border-radius: 4px;
-                padding: 8px;
+                padding: 6px;
             }
 
             entry:focus {
@@ -996,16 +1005,16 @@ class VentanaVPN(Gtk.Window):
             }
 
             button {
-                background-image: linear-gradient(to bottom, #4299e1, #3182ce);
-                color: white;
-                border: 1px solid #2c5282;
+                background-image: linear-gradient(to bottom, #8dc5e8, #6eb5e0);
+                color: black;
+                border: 1px solid #5a9fd4;
                 border-radius: 4px;
-                padding: 10px 20px;
+                padding: 7px 14px;
                 font-weight: bold;
             }
 
             button:hover {
-                background-image: linear-gradient(to bottom, #3182ce, #2c5282);
+                background-image: linear-gradient(to bottom, #a5d4ef, #8dc5e8);
             }
 
             button:disabled {
@@ -1018,6 +1027,11 @@ class VentanaVPN(Gtk.Window):
                 background-color: #ffffff;
                 color: #2d3748;
                 border: 1px solid #cbd5e0;
+                font-size: 10px;
+            }
+
+            textview text {
+                font-size: 10px;
             }
 
             label {
@@ -1039,7 +1053,7 @@ class VentanaVPN(Gtk.Window):
 
             menubar > menuitem {
                 color: #333333;
-                padding: 8px 15px;
+                padding: 6px 11px;
             }
 
             menubar > menuitem:hover {
@@ -1052,7 +1066,7 @@ class VentanaVPN(Gtk.Window):
             }
 
             menuitem {
-                padding: 8px 20px;
+                padding: 6px 14px;
                 color: #333333;
             }
 
@@ -1065,7 +1079,7 @@ class VentanaVPN(Gtk.Window):
                 color: #333333;
                 border: 1px solid #e0e0e0;
                 border-radius: 2px;
-                padding: 8px;
+                padding: 6px;
             }
 
             entry:focus {
@@ -1077,7 +1091,7 @@ class VentanaVPN(Gtk.Window):
                 color: #333333;
                 border: 1px solid #e0e0e0;
                 border-radius: 2px;
-                padding: 10px 20px;
+                padding: 7px 14px;
             }
 
             button:hover {
@@ -1094,6 +1108,11 @@ class VentanaVPN(Gtk.Window):
                 background-color: #ffffff;
                 color: #333333;
                 border: 1px solid #e0e0e0;
+                font-size: 10px;
+            }
+
+            textview text {
+                font-size: 10px;
             }
 
             label {
@@ -1114,7 +1133,7 @@ class VentanaVPN(Gtk.Window):
 
             menubar > menuitem {
                 color: #e0e0e0;
-                padding: 8px 15px;
+                padding: 6px 11px;
             }
 
             menubar > menuitem:hover {
@@ -1127,7 +1146,7 @@ class VentanaVPN(Gtk.Window):
             }
 
             menuitem {
-                padding: 8px 20px;
+                padding: 6px 14px;
                 color: #e0e0e0;
             }
 
@@ -1140,7 +1159,7 @@ class VentanaVPN(Gtk.Window):
                 color: #e0e0e0;
                 border: 1px solid #404040;
                 border-radius: 4px;
-                padding: 8px;
+                padding: 6px;
                 caret-color: #e0e0e0;
             }
 
@@ -1153,7 +1172,7 @@ class VentanaVPN(Gtk.Window):
                 color: #e0e0e0;
                 border: 1px solid #606060;
                 border-radius: 4px;
-                padding: 10px 20px;
+                padding: 7px 14px;
             }
 
             button:hover {
@@ -1170,15 +1189,121 @@ class VentanaVPN(Gtk.Window):
                 background-color: #1a1a1a;
                 color: #e0e0e0;
                 border: 1px solid #404040;
+                font-size: 10px;
             }
 
             textview text {
                 background-color: #1a1a1a;
                 color: #e0e0e0;
+                font-size: 10px;
             }
 
             label {
                 color: #e0e0e0;
+            }
+            """
+        elif tema == 'modern':
+            css = """
+            window {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background-color: #f8f9fd;
+            }
+
+            menubar {
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+                border-radius: 0;
+            }
+
+            menubar > menuitem {
+                color: white;
+                padding: 6px 11px;
+                font-weight: 500;
+            }
+
+            menubar > menuitem:hover {
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 4px;
+            }
+
+            menu {
+                background-color: #ffffff;
+                border: 1px solid #e0e7ff;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            menuitem {
+                padding: 6px 14px;
+                color: #4c1d95;
+                border-radius: 4px;
+            }
+
+            menuitem:hover {
+                background: linear-gradient(90deg, #ede9fe 0%, #e0e7ff 100%);
+                color: #5b21b6;
+            }
+
+            entry {
+                background-color: white;
+                color: #1e293b;
+                border: 2px solid #c7d2fe;
+                border-radius: 8px;
+                padding: 6px;
+                font-size: 14px;
+            }
+
+            entry:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+                background-color: #fafbff;
+            }
+
+            button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 7px 14px;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            }
+
+            button:hover {
+                background: linear-gradient(135deg, #5568d3 0%, #6b3f8e 100%);
+                box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+            }
+
+            button:active {
+                background: linear-gradient(135deg, #4c5dc9 0%, #5c357a 100%);
+                box-shadow: 0 1px 2px rgba(102, 126, 234, 0.3);
+            }
+
+            button:disabled {
+                background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+                color: #64748b;
+                box-shadow: none;
+            }
+
+            textview {
+                background-color: #ffffff;
+                color: #1e293b;
+                border: 2px solid #e0e7ff;
+                border-radius: 8px;
+                font-size: 10px;
+            }
+
+            textview text {
+                background-color: #ffffff;
+                color: #1e293b;
+                font-size: 10px;
+            }
+
+            label {
+                color: #1e293b;
+                font-weight: 500;
             }
             """
 
@@ -2053,7 +2178,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # Opción: Abrir
         self.menu_si_abrir = Gtk.MenuItem()
-        abrir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        abrir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         abrir_icon = Gtk.Image.new_from_icon_name('document-open', Gtk.IconSize.MENU)
         abrir_label = Gtk.Label(label="Abrir")
         abrir_label.set_xalign(0)
@@ -2068,7 +2193,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # Estado
         self.menu_si_estado = Gtk.MenuItem()
-        estado_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        estado_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         self.menu_si_estado_icon = Gtk.Image.new_from_icon_name('dialog-error', Gtk.IconSize.MENU)  # Rojo para desconectado
         self.menu_si_estado_label = Gtk.Label(label="Estado: Desconectado")
         self.menu_si_estado_label.set_xalign(0)
@@ -2080,7 +2205,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # IP VPN
         self.menu_si_ip_vpn = Gtk.MenuItem()
-        ip_vpn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_vpn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         ip_vpn_icon = Gtk.Image.new_from_icon_name('changes-prevent', Gtk.IconSize.MENU)
         self.menu_si_ip_vpn_label = Gtk.Label(label="IP VPN: No conectado")
         self.menu_si_ip_vpn_label.set_xalign(0)
@@ -2092,7 +2217,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # IP Local
         self.menu_si_ip_local = Gtk.MenuItem()
-        ip_local_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_local_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         ip_local_icon = Gtk.Image.new_from_icon_name('network-wired', Gtk.IconSize.MENU)
         self.menu_si_ip_local_label = Gtk.Label(label="IP Local: Cargando...")
         self.menu_si_ip_local_label.set_xalign(0)
@@ -2104,7 +2229,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # IP Pública
         self.menu_si_ip_publica = Gtk.MenuItem()
-        ip_publica_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ip_publica_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         ip_publica_icon = Gtk.Image.new_from_icon_name('network-transmit-receive', Gtk.IconSize.MENU)
         self.menu_si_ip_publica_label = Gtk.Label(label="IP Pública: Cargando...")
         self.menu_si_ip_publica_label.set_xalign(0)
@@ -2116,7 +2241,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # Tipo de conexión
         self.menu_si_conexion = Gtk.MenuItem()
-        conexion_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        conexion_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         self.menu_si_conexion_icon = Gtk.Image.new_from_icon_name('network-wired', Gtk.IconSize.MENU)  # Por defecto cableada
         self.menu_si_conexion_label = Gtk.Label(label="Conexión: Cargando...")
         self.menu_si_conexion_label.set_xalign(0)
@@ -2131,7 +2256,7 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
 
         # Opción: Salir
         menu_si_salir = Gtk.MenuItem()
-        salir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        salir_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         salir_icon = Gtk.Image.new_from_icon_name('application-exit', Gtk.IconSize.MENU)
         salir_label = Gtk.Label(label="Salir")
         salir_label.set_xalign(0)
