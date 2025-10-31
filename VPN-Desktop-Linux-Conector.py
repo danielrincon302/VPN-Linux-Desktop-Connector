@@ -1168,20 +1168,22 @@ class VentanaVPN(Gtk.Window):
             }
 
             button {
-                background-color: #404040;
-                color: #e0e0e0;
-                border: 1px solid #606060;
+                background-color: #2d2d2d;
+                color: #ffffff;
+                border: 1px solid #555555;
                 border-radius: 4px;
                 padding: 7px 14px;
+                font-weight: bold;
             }
 
             button:hover {
-                background-color: #4d4d4d;
-                border-color: #808080;
+                background-color: #3a3a3a;
+                border-color: #707070;
+                color: #ffffff;
             }
 
             button:disabled {
-                background-color: #2d2d2d;
+                background-color: #1f1f1f;
                 color: #666666;
             }
 
@@ -1205,7 +1207,7 @@ class VentanaVPN(Gtk.Window):
         elif tema == 'modern':
             css = """
             window {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
                 background-color: #f8f9fd;
             }
 
@@ -1223,35 +1225,37 @@ class VentanaVPN(Gtk.Window):
             }
 
             menubar > menuitem:hover {
-                background: rgba(255, 255, 255, 0.15);
+                background: rgba(255, 255, 255, 0.25);
                 border-radius: 4px;
             }
 
             menu {
                 background-color: #ffffff;
-                border: 1px solid #e0e7ff;
+                border: 1px solid #c7d2fe;
                 border-radius: 8px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
 
             menuitem {
                 padding: 6px 14px;
-                color: #4c1d95;
+                color: #312e81;
                 border-radius: 4px;
+                font-weight: 500;
             }
 
             menuitem:hover {
                 background: linear-gradient(90deg, #ede9fe 0%, #e0e7ff 100%);
-                color: #5b21b6;
+                color: #4c1d95;
             }
 
             entry {
                 background-color: white;
-                color: #1e293b;
+                color: #1e1b4b;
                 border: 2px solid #c7d2fe;
                 border-radius: 8px;
                 padding: 6px;
                 font-size: 14px;
+                font-weight: 500;
             }
 
             entry:focus {
@@ -1289,21 +1293,22 @@ class VentanaVPN(Gtk.Window):
 
             textview {
                 background-color: #ffffff;
-                color: #1e293b;
-                border: 2px solid #e0e7ff;
+                color: #1e1b4b;
+                border: 2px solid #c7d2fe;
                 border-radius: 8px;
                 font-size: 10px;
+                font-weight: 500;
             }
 
             textview text {
                 background-color: #ffffff;
-                color: #1e293b;
+                color: #1e1b4b;
                 font-size: 10px;
             }
 
             label {
-                color: #1e293b;
-                font-weight: 500;
+                color: #312e81;
+                font-weight: 600;
             }
             """
 
