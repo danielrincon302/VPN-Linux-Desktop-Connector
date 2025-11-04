@@ -32,8 +32,8 @@ TRADUCCIONES = {
         'menu_themes': 'Temas',
         'theme_managerial': 'Gerencial',
         'theme_minimalist': 'Minimalista',
-        'theme_dark': 'Oscuro',
         'theme_modern': 'Moderno',
+        'theme_solar': 'Sistema Solar',
         'menu_language': 'Lenguaje',
         'menu_help': 'Ayuda',
         'help_manual': 'Manual de VPN Linux Desktop Connector',
@@ -96,8 +96,8 @@ TRADUCCIONES = {
         'menu_themes': 'Themes',
         'theme_managerial': 'Managerial',
         'theme_minimalist': 'Minimalist',
-        'theme_dark': 'Dark',
         'theme_modern': 'Modern',
+        'theme_solar': 'Solar System',
         'menu_language': 'Language',
         'menu_help': 'Help',
         'help_manual': 'VPN Linux Desktop Connector Manual',
@@ -160,8 +160,8 @@ TRADUCCIONES = {
         'menu_themes': '主题',
         'theme_managerial': '管理风格',
         'theme_minimalist': '极简主义',
-        'theme_dark': '暗黑',
         'theme_modern': '现代',
+        'theme_solar': '太阳系',
         'menu_language': '语言',
         'menu_help': '帮助',
         'help_manual': 'VPN Linux Desktop Connector 手册',
@@ -224,8 +224,8 @@ TRADUCCIONES = {
         'menu_themes': 'Temas',
         'theme_managerial': 'Gerencial',
         'theme_minimalist': 'Minimalista',
-        'theme_dark': 'Escuro',
         'theme_modern': 'Moderno',
+        'theme_solar': 'Sistema Solar',
         'menu_language': 'Idioma',
         'menu_help': 'Ajuda',
         'help_manual': 'Manual do VPN Linux Desktop Connector',
@@ -288,8 +288,8 @@ TRADUCCIONES = {
         'menu_themes': 'Thèmes',
         'theme_managerial': 'Gestionnaire',
         'theme_minimalist': 'Minimaliste',
-        'theme_dark': 'Sombre',
         'theme_modern': 'Moderne',
+        'theme_solar': 'Système Solaire',
         'menu_language': 'Langue',
         'menu_help': 'Aide',
         'help_manual': 'Manuel de VPN Linux Desktop Connector',
@@ -352,8 +352,8 @@ TRADUCCIONES = {
         'menu_themes': 'Themen',
         'theme_managerial': 'Geschäftlich',
         'theme_minimalist': 'Minimalistisch',
-        'theme_dark': 'Dunkel',
         'theme_modern': 'Modern',
+        'theme_solar': 'Sonnensystem',
         'menu_language': 'Sprache',
         'menu_help': 'Hilfe',
         'help_manual': 'VPN Linux Desktop Connector Handbuch',
@@ -416,8 +416,8 @@ TRADUCCIONES = {
         'menu_themes': 'テーマ',
         'theme_managerial': 'ビジネス',
         'theme_minimalist': 'ミニマリスト',
-        'theme_dark': 'ダーク',
         'theme_modern': 'モダン',
+        'theme_solar': '太陽系',
         'menu_language': '言語',
         'menu_help': 'ヘルプ',
         'help_manual': 'VPN Linux Desktop Connector マニュアル',
@@ -660,8 +660,8 @@ class VentanaVPN(Gtk.Window):
         self.temas_info = [
             ('managerial', 'theme_managerial', 'x-office-document'),
             ('minimalist', 'theme_minimalist', 'view-list-compact-symbolic'),
-            ('dark', 'theme_dark', 'weather-clear-night'),
-            ('modern', 'theme_modern', 'preferences-desktop-display')
+            ('modern', 'theme_modern', 'preferences-desktop-display'),
+            ('solar', 'theme_solar', 'weather-clear-night')
         ]
 
         self.tema_menu_items = {}
@@ -922,7 +922,7 @@ class VentanaVPN(Gtk.Window):
             if os.path.exists('tema.txt'):
                 with open('tema.txt', 'r') as f:
                     tema = f.read().strip()
-                    temas_validos = ['managerial', 'minimalist', 'dark', 'modern']
+                    temas_validos = ['managerial', 'minimalist', 'modern', 'solar']
                     if tema in temas_validos:
                         self.tema_actual = tema
         except Exception:
@@ -1119,91 +1119,6 @@ class VentanaVPN(Gtk.Window):
                 color: #333333;
             }
             """
-        elif tema == 'dark':
-            css = """
-            window {
-                background-color: #1a1a1a;
-            }
-
-            menubar {
-                background-color: #2d2d2d;
-                color: #e0e0e0;
-                border-bottom: 1px solid #404040;
-            }
-
-            menubar > menuitem {
-                color: #e0e0e0;
-                padding: 6px 11px;
-            }
-
-            menubar > menuitem:hover {
-                background-color: #404040;
-            }
-
-            menu {
-                background-color: #2d2d2d;
-                border: 1px solid #404040;
-            }
-
-            menuitem {
-                padding: 6px 14px;
-                color: #e0e0e0;
-            }
-
-            menuitem:hover {
-                background-color: #404040;
-            }
-
-            entry {
-                background-color: #2d2d2d;
-                color: #e0e0e0;
-                border: 1px solid #404040;
-                border-radius: 4px;
-                padding: 6px;
-                caret-color: #e0e0e0;
-            }
-
-            entry:focus {
-                border-color: #606060;
-            }
-
-            button {
-                background-color: #2d2d2d;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 4px;
-                padding: 7px 14px;
-                font-weight: bold;
-            }
-
-            button:hover {
-                background-color: #3a3a3a;
-                border-color: #707070;
-                color: #ffffff;
-            }
-
-            button:disabled {
-                background-color: #1f1f1f;
-                color: #666666;
-            }
-
-            textview {
-                background-color: #1a1a1a;
-                color: #e0e0e0;
-                border: 1px solid #404040;
-                font-size: 10px;
-            }
-
-            textview text {
-                background-color: #1a1a1a;
-                color: #e0e0e0;
-                font-size: 10px;
-            }
-
-            label {
-                color: #e0e0e0;
-            }
-            """
         elif tema == 'modern':
             css = """
             window {
@@ -1309,6 +1224,118 @@ class VentanaVPN(Gtk.Window):
             label {
                 color: #312e81;
                 font-weight: 600;
+            }
+            """
+        elif tema == 'solar':
+            css = """
+            window {
+                background-color: #0a0e1a;
+                background: radial-gradient(ellipse at top, #1a1f3a 0%, #0a0e1a 50%, #000000 100%);
+            }
+
+            menubar {
+                background: linear-gradient(90deg, #1a1f3a 0%, #2d1b3d 100%);
+                color: #e8e8e8;
+                border-bottom: 2px solid #4a5fe8;
+            }
+
+            menubar > menuitem {
+                color: #e8e8e8;
+                padding: 6px 11px;
+                font-weight: 500;
+            }
+
+            menubar > menuitem:hover {
+                background: rgba(74, 95, 232, 0.3);
+                border-radius: 4px;
+                box-shadow: 0 0 10px rgba(74, 95, 232, 0.5);
+            }
+
+            menu {
+                background-color: #1a1d2e;
+                border: 2px solid #4a5fe8;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(74, 95, 232, 0.3);
+            }
+
+            menuitem {
+                padding: 6px 14px;
+                color: #e8e8e8;
+                border-radius: 4px;
+            }
+
+            menuitem:hover {
+                background: linear-gradient(90deg, #2d1b3d 0%, #4a5fe8 100%);
+                color: #ffffff;
+                box-shadow: 0 0 8px rgba(74, 95, 232, 0.6);
+            }
+
+            entry {
+                background-color: #1a1d2e;
+                color: #e8e8e8;
+                border: 2px solid #4a5fe8;
+                border-radius: 8px;
+                padding: 6px;
+                font-size: 14px;
+                caret-color: #ffb84d;
+            }
+
+            entry:focus {
+                border-color: #ffb84d;
+                box-shadow: 0 0 12px rgba(255, 149, 0, 0.6);
+                background-color: #1f2333;
+            }
+
+            button {
+                background: linear-gradient(135deg, #734500 0%, #8a5c00 30%, #a15c00 70%, #8a5c00 100%);
+                color: #ffffff;
+                border: 2px solid #8a5c00;
+                border-radius: 8px;
+                padding: 7px 14px;
+                font-weight: 700;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(138, 92, 0, 0.5);
+            }
+
+            button:hover {
+                background: linear-gradient(135deg, #8a5c00 0%, #a15c00 30%, #b86e00 70%, #a15c00 100%);
+                color: #ffffff;
+                border-color: #a15c00;
+                box-shadow: 0 6px 20px rgba(161, 92, 0, 0.6);
+            }
+
+            button:active {
+                background: linear-gradient(135deg, #5c3800 0%, #734500 50%, #5c3800 100%);
+                color: #ffffff;
+                box-shadow: 0 2px 8px rgba(115, 69, 0, 0.5);
+            }
+
+            button:disabled {
+                background: linear-gradient(135deg, #3a3d4a 0%, #2d2f3a 100%);
+                color: #5a5d6a;
+                border-color: #3a3d4a;
+                box-shadow: none;
+            }
+
+            textview {
+                background-color: #0d1117;
+                color: #e8e8e8;
+                border: 2px solid #4a5fe8;
+                border-radius: 8px;
+                font-size: 10px;
+                box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+            }
+
+            textview text {
+                background-color: #0d1117;
+                color: #e8e8e8;
+                font-size: 10px;
+            }
+
+            label {
+                color: #e8e8e8;
+                font-weight: 600;
+                text-shadow: 0 0 5px rgba(74, 95, 232, 0.5);
             }
             """
 
