@@ -67,6 +67,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'Seleccionar archivo OVPN',
         'btn_connect': 'Conectar VPN',
         'btn_disconnect': 'Desconectar VPN',
+        'btn_connecting': 'Conectando VPN',
+        'btn_disconnecting': 'Desconectando VPN',
         'btn_clear': 'Limpiar Logs',
         'status': 'Estado:',
         'status_disconnected': 'Desconectado',
@@ -136,6 +138,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'Select OVPN file',
         'btn_connect': 'Connect VPN',
         'btn_disconnect': 'Disconnect VPN',
+        'btn_connecting': 'Connecting VPN',
+        'btn_disconnecting': 'Disconnecting VPN',
         'btn_clear': 'Clear Logs',
         'status': 'Status:',
         'status_disconnected': 'Disconnected',
@@ -205,6 +209,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': '选择 OVPN 文件',
         'btn_connect': '连接 VPN',
         'btn_disconnect': '断开 VPN',
+        'btn_connecting': '正在连接 VPN',
+        'btn_disconnecting': '正在断开 VPN',
         'btn_clear': '清除日志',
         'status': '状态：',
         'status_disconnected': '已断开',
@@ -274,6 +280,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'Selecionar arquivo OVPN',
         'btn_connect': 'Conectar VPN',
         'btn_disconnect': 'Desconectar VPN',
+        'btn_connecting': 'Conectando VPN',
+        'btn_disconnecting': 'Desconectando VPN',
         'btn_clear': 'Limpar Logs',
         'status': 'Estado:',
         'status_disconnected': 'Desconectado',
@@ -343,6 +351,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'Sélectionner fichier OVPN',
         'btn_connect': 'Connecter VPN',
         'btn_disconnect': 'Déconnecter VPN',
+        'btn_connecting': 'Connexion VPN',
+        'btn_disconnecting': 'Déconnexion VPN',
         'btn_clear': 'Effacer les journaux',
         'status': 'État:',
         'status_disconnected': 'Déconnecté',
@@ -412,6 +422,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'OVPN-Datei auswählen',
         'btn_connect': 'VPN verbinden',
         'btn_disconnect': 'VPN trennen',
+        'btn_connecting': 'VPN verbinden...',
+        'btn_disconnecting': 'VPN trennen...',
         'btn_clear': 'Protokolle löschen',
         'status': 'Status:',
         'status_disconnected': 'Getrennt',
@@ -481,6 +493,8 @@ TRADUCCIONES = {
         'btn_select_ovpn': 'OVPNファイルを選択',
         'btn_connect': 'VPN接続',
         'btn_disconnect': 'VPN切断',
+        'btn_connecting': 'VPN接続中',
+        'btn_disconnecting': 'VPN切断中',
         'btn_clear': 'ログをクリア',
         'status': 'ステータス：',
         'status_disconnected': '切断済み',
@@ -641,7 +655,7 @@ def obtener_tipo_conexion():
 class VentanaVPN(Gtk.Window):
     def __init__(self):
         super().__init__(title="VPN Linux Desktop Connector")
-        self.set_default_size(352, 400)
+        self.set_default_size(352, 320)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.proceso = None
         self.archivo_ovpn = None
@@ -906,29 +920,43 @@ class VentanaVPN(Gtk.Window):
         # Separador entre logo/campos y selector de archivo
         vbox.pack_start(Gtk.Box(), False, False, 5)
 
-        # Botón selector de Archivo OVPN (100% ancho, sin etiqueta)
-        self.boton_seleccionar_ovpn = Gtk.Button(label=self.t('label_ovpn').replace(':', ''))
-        self.boton_seleccionar_ovpn.connect("clicked", self.on_seleccionar_ovpn_clicked)
-        vbox.pack_start(self.boton_seleccionar_ovpn, False, False, 0)
+        # Contenedor horizontal para botones y semáforo
+        hbox_controles = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        hbox_controles.set_halign(Gtk.Align.CENTER)
+        vbox.pack_start(hbox_controles, False, False, 0)
 
-        # Botón combinado conectar/desconectar (100% ancho)
+        # Ícono selector de Archivo OVPN (carpeta clickeable sin borde)
+        self.folder_eventbox = Gtk.EventBox()
+        self.folder_icon = Gtk.Image.new_from_icon_name("folder-open", Gtk.IconSize.DIALOG)
+        self.folder_icon.set_pixel_size(40)
+        self.folder_eventbox.add(self.folder_icon)
+        self.folder_eventbox.set_tooltip_text(self.t('btn_select_ovpn'))
+        self.folder_eventbox.connect("button-press-event", self.on_seleccionar_ovpn_clicked)
+        hbox_controles.pack_start(self.folder_eventbox, False, False, 0)
+
+        # Guardar referencia al eventbox como boton_seleccionar_ovpn para mantener compatibilidad
+        self.boton_seleccionar_ovpn = self.folder_eventbox
+
+        # Botón combinado conectar/desconectar
         self.boton_conectar_desconectar = Gtk.Button(label=self.t('btn_connect'))
+        self.boton_conectar_desconectar.set_size_request(180, 40)
         self.boton_conectar_desconectar.connect("clicked", self.on_toggle_conexion_clicked)
-        vbox.pack_start(self.boton_conectar_desconectar, False, False, 0)
+        hbox_controles.pack_start(self.boton_conectar_desconectar, False, False, 0)
+
+        # Semáforo de estado seguido del botón Conectar (inicialmente rojo - desconectado)
+        self.semaforo_image = Gtk.Image()
+        self.semaforo_image.set_from_file("icons/red.fw.png")
+        self.semaforo_image.set_size_request(40, 40)
+        hbox_controles.pack_start(self.semaforo_image, False, False, 0)
 
         # Variable para rastrear el estado de conexión
         self.conectado = False
-
-        # Label de estado
-        self.label_estado = Gtk.Label()
-        self.label_estado.set_markup(f"<b>{self.t('status')}</b> {self.t('status_disconnected')}")
-        vbox.pack_start(self.label_estado, False, False, 5)
 
         # Área de texto con scroll para logs
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_hexpand(True)
         scrolled.set_vexpand(True)
-        scrolled.set_size_request(-1, 60)
+        scrolled.set_size_request(-1, 48)
         vbox.pack_start(scrolled, True, True, 0)
 
         # TextView para mostrar la salida
@@ -1494,14 +1522,14 @@ class VentanaVPN(Gtk.Window):
         self.entry_usuario.set_placeholder_text(self.t('label_user').replace(':', ''))
         self.entry_password.set_placeholder_text(self.t('label_password').replace(':', ''))
 
-        # Actualizar botón selector OVPN
-        if self.archivo_ovpn and '✓' in self.boton_seleccionar_ovpn.get_label():
-            # Si ya hay un archivo seleccionado, mantener el ✓
+        # Actualizar tooltip del botón selector OVPN
+        if self.archivo_ovpn:
+            # Si ya hay un archivo seleccionado, mostrar el nombre en el tooltip
             nombre_archivo = self.archivo_ovpn.split('/')[-1]
-            self.boton_seleccionar_ovpn.set_label(f"✓ {nombre_archivo}")
+            self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {nombre_archivo}")
         else:
-            # Si no hay archivo, mostrar "Archivo OVPN" como placeholder
-            self.boton_seleccionar_ovpn.set_label(self.t('label_ovpn').replace(':', ''))
+            # Si no hay archivo, mostrar texto predeterminado en el tooltip
+            self.boton_seleccionar_ovpn.set_tooltip_text(self.t('btn_select_ovpn'))
 
         # Actualizar etiqueta del botón según el estado actual
         if self.conectado:
@@ -1509,16 +1537,11 @@ class VentanaVPN(Gtk.Window):
         else:
             self.boton_conectar_desconectar.set_label(self.t('btn_connect'))
 
-        # Actualizar estado según el estado actual
-        current_markup = self.label_estado.get_label()
-        if 'Conectado' in current_markup or 'Connected' in current_markup or '已连接' in current_markup or 'Conectado' in current_markup or 'Connecté' in current_markup or 'Verbunden' in current_markup or '接続済み' in current_markup:
-            self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='green'>{self.t('status_connected')}</span>")
-        elif 'Conectando' in current_markup or 'Connecting' in current_markup or '正在连接' in current_markup or 'Conectando' in current_markup or 'Connexion' in current_markup or 'Verbinde' in current_markup or '接続中' in current_markup:
-            self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='orange'>{self.t('status_connecting')}</span>")
-        elif 'Desconectando' in current_markup or 'Disconnecting' in current_markup or '正在断开' in current_markup or 'Desconectando' in current_markup or 'Déconnexion' in current_markup or 'Trennen' in current_markup or '切断中' in current_markup:
-            self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='red'>{self.t('status_disconnecting')}</span>")
+        # Actualizar semáforo según el estado actual
+        if self.conectado:
+            self.actualizar_semaforo('conectado')
         else:
-            self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='gray'>{self.t('status_disconnected')}</span>")
+            self.actualizar_semaforo('desconectado')
 
         # Actualizar mensaje inicial en el área de logs si está vacío o solo contiene el mensaje inicial
         current_text = self.textbuffer.get_text(
@@ -1537,7 +1560,7 @@ class VentanaVPN(Gtk.Window):
         if not current_text or current_text in mensajes_iniciales:
             self.textbuffer.set_text(self.t('initial_msg'))
 
-    def on_seleccionar_ovpn_clicked(self, widget):
+    def on_seleccionar_ovpn_clicked(self, widget, event=None):
         """Abre un diálogo para seleccionar el archivo OVPN"""
         dialog = Gtk.FileChooserDialog(
             title=self.t('dialog_select_ovpn'),
@@ -1564,7 +1587,7 @@ class VentanaVPN(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.archivo_ovpn = dialog.get_filename()
-            self.boton_seleccionar_ovpn.set_label(f"✓ {self.archivo_ovpn.split('/')[-1]}")
+            self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {self.archivo_ovpn.split('/')[-1]}")
             self.agregar_texto(f"{self.t('file_selected')} {self.archivo_ovpn}\n")
 
         dialog.destroy()
@@ -1584,7 +1607,7 @@ class VentanaVPN(Gtk.Window):
                 if len(lineas) >= 3:
                     self.archivo_ovpn = lineas[2].strip()
                     if self.archivo_ovpn:
-                        self.boton_seleccionar_ovpn.set_label(f"✓ {self.archivo_ovpn.split('/')[-1]}")
+                        self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {self.archivo_ovpn.split('/')[-1]}")
         except FileNotFoundError:
             pass  # Si no existe el archivo, no hacer nada
 
@@ -1645,10 +1668,10 @@ class VentanaVPN(Gtk.Window):
         self.agregar_texto(self.t('starting_connection'))
         self.agregar_texto(f"{self.t('user')} {usuario}\n")
         self.agregar_texto(self.t('credentials_saved'))
-        self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='orange'>{self.t('status_connecting')}</span>")
+        self.actualizar_semaforo('conectando')
 
-        # Estado: Conectando - Cambiar botón a "Desconectar"
-        self.boton_conectar_desconectar.set_label(self.t('btn_disconnect'))
+        # Estado: Conectando - Cambiar botón a "Conectando VPN"
+        self.boton_conectar_desconectar.set_label(self.t('btn_connecting'))
         self.conectado = True
 
         # Ejecutar en un hilo separado
@@ -1659,9 +1682,10 @@ class VentanaVPN(Gtk.Window):
     def on_desconectar_clicked(self, widget):
         if self.proceso and self.proceso.poll() is None:
             self.agregar_texto(self.t('disconnecting_vpn'))
-            self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='red'>{self.t('status_disconnecting')}</span>")
+            self.actualizar_semaforo('desconectando')
 
-            # Deshabilitar botón mientras desconecta
+            # Cambiar botón a "Desconectando VPN" y deshabilitar
+            self.boton_conectar_desconectar.set_label(self.t('btn_disconnecting'))
             self.boton_conectar_desconectar.set_sensitive(False)
 
             try:
@@ -1813,11 +1837,11 @@ class VentanaVPN(Gtk.Window):
             GLib.idle_add(self.reactivar_botones)
 
     def actualizar_estado_conectado(self):
-        self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='green'>{self.t('status_connected')}</span>")
         # Estado: Conectado - Cambiar botón a "Desconectar"
         self.boton_conectar_desconectar.set_label(self.t('btn_disconnect'))
         self.boton_conectar_desconectar.set_sensitive(True)
         self.conectado = True
+        self.actualizar_semaforo('conectado')
         return False
 
     def mostrar_error_conexion(self):
@@ -1863,12 +1887,24 @@ class VentanaVPN(Gtk.Window):
         self.textview.scroll_to_mark(mark, 0.0, True, 0.0, 1.0)
         return False
 
+    def actualizar_semaforo(self, estado):
+        """Actualiza el semáforo según el estado de la conexión
+        Estados: 'conectado', 'desconectado', 'conectando', 'desconectando'
+        """
+        if estado == 'conectado':
+            self.semaforo_image.set_from_file("icons/green.fw.png")
+        elif estado in ['conectando', 'desconectando']:
+            self.semaforo_image.set_from_file("icons/yellow.fw.png")
+        else:  # desconectado
+            self.semaforo_image.set_from_file("icons/red.fw.png")
+        return False
+
     def reactivar_botones(self):
         # Estado: Desconectado - Cambiar botón a "Conectar"
         self.boton_conectar_desconectar.set_sensitive(True)
         self.boton_conectar_desconectar.set_label(self.t('btn_connect'))
         self.conectado = False
-        self.label_estado.set_markup(f"<b>{self.t('status')}</b> <span color='gray'>{self.t('status_disconnected')}</span>")
+        self.actualizar_semaforo('desconectado')
         return False
 
     def on_manual_clicked(self, widget):
