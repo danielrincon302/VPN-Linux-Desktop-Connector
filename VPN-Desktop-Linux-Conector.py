@@ -35,6 +35,11 @@ TRADUCCIONES = {
         'theme_modern': 'Moderno',
         'theme_solar': 'Sistema Solar',
         'menu_language': 'Lenguaje',
+        'force_tls': 'Forzar TLS 1.0/AES-128-CBC',
+        'yes': 'Sí',
+        'no': 'No',
+        'tls_error_title': 'Error de TLS Deprecado',
+        'tls_error_msg': 'Se detectó un error de TLS deprecado.\n\n¿Desea activar el uso de TLS 1.0 con Cifrado AES-128-CBC?\n\nEsto puede resolver problemas de compatibilidad con servidores antiguos.',
         'menu_help': 'Ayuda',
         'help_manual': 'Manual de VPN Linux Desktop Connector',
         'help_report_bug': 'Informar de fallo',
@@ -99,6 +104,11 @@ TRADUCCIONES = {
         'theme_modern': 'Modern',
         'theme_solar': 'Solar System',
         'menu_language': 'Language',
+        'force_tls': 'Force TLS 1.0/AES-128-CBC',
+        'yes': 'Yes',
+        'no': 'No',
+        'tls_error_title': 'Deprecated TLS Error',
+        'tls_error_msg': 'A deprecated TLS error was detected.\n\nDo you want to enable TLS 1.0 with AES-128-CBC Encryption?\n\nThis may resolve compatibility issues with older servers.',
         'menu_help': 'Help',
         'help_manual': 'VPN Linux Desktop Connector Manual',
         'help_report_bug': 'Report a Bug',
@@ -163,6 +173,11 @@ TRADUCCIONES = {
         'theme_modern': '现代',
         'theme_solar': '太阳系',
         'menu_language': '语言',
+        'force_tls': '强制 TLS 1.0/AES-128-CBC',
+        'yes': '是',
+        'no': '否',
+        'tls_error_title': 'TLS 已弃用错误',
+        'tls_error_msg': '检测到 TLS 已弃用错误。\n\n是否要启用 TLS 1.0 和 AES-128-CBC 加密？\n\n这可以解决与旧服务器的兼容性问题。',
         'menu_help': '帮助',
         'help_manual': 'VPN Linux Desktop Connector 手册',
         'help_report_bug': '报告错误',
@@ -227,6 +242,11 @@ TRADUCCIONES = {
         'theme_modern': 'Moderno',
         'theme_solar': 'Sistema Solar',
         'menu_language': 'Idioma',
+        'force_tls': 'Forçar TLS 1.0/AES-128-CBC',
+        'yes': 'Sim',
+        'no': 'Não',
+        'tls_error_title': 'Erro de TLS Deprecado',
+        'tls_error_msg': 'Um erro de TLS deprecado foi detectado.\n\nDeseja ativar o uso de TLS 1.0 com Criptografia AES-128-CBC?\n\nIsso pode resolver problemas de compatibilidade com servidores antigos.',
         'menu_help': 'Ajuda',
         'help_manual': 'Manual do VPN Linux Desktop Connector',
         'help_report_bug': 'Reportar um Erro',
@@ -291,6 +311,11 @@ TRADUCCIONES = {
         'theme_modern': 'Moderne',
         'theme_solar': 'Système Solaire',
         'menu_language': 'Langue',
+        'force_tls': 'Forcer TLS 1.0/AES-128-CBC',
+        'yes': 'Oui',
+        'no': 'Non',
+        'tls_error_title': 'Erreur TLS Déprécié',
+        'tls_error_msg': 'Une erreur TLS déprécié a été détectée.\n\nVoulez-vous activer TLS 1.0 avec le chiffrement AES-128-CBC?\n\nCela peut résoudre les problèmes de compatibilité avec les serveurs anciens.',
         'menu_help': 'Aide',
         'help_manual': 'Manuel de VPN Linux Desktop Connector',
         'help_report_bug': 'Signaler un Bug',
@@ -355,6 +380,11 @@ TRADUCCIONES = {
         'theme_modern': 'Modern',
         'theme_solar': 'Sonnensystem',
         'menu_language': 'Sprache',
+        'force_tls': 'TLS 1.0/AES-128-CBC erzwingen',
+        'yes': 'Ja',
+        'no': 'Nein',
+        'tls_error_title': 'Veralteter TLS-Fehler',
+        'tls_error_msg': 'Ein veralteter TLS-Fehler wurde erkannt.\n\nMöchten Sie TLS 1.0 mit AES-128-CBC-Verschlüsselung aktivieren?\n\nDies kann Kompatibilitätsprobleme mit älteren Servern lösen.',
         'menu_help': 'Hilfe',
         'help_manual': 'VPN Linux Desktop Connector Handbuch',
         'help_report_bug': 'Fehler melden',
@@ -419,6 +449,11 @@ TRADUCCIONES = {
         'theme_modern': 'モダン',
         'theme_solar': '太陽系',
         'menu_language': '言語',
+        'force_tls': 'TLS 1.0/AES-128-CBC を強制',
+        'yes': 'はい',
+        'no': 'いいえ',
+        'tls_error_title': '非推奨TLSエラー',
+        'tls_error_msg': '非推奨のTLSエラーが検出されました。\n\nAES-128-CBC暗号化でTLS 1.0を有効にしますか？\n\nこれにより、古いサーバーとの互換性の問題が解決される場合があります。',
         'menu_help': 'ヘルプ',
         'help_manual': 'VPN Linux Desktop Connector マニュアル',
         'help_report_bug': 'バグを報告',
@@ -627,6 +662,10 @@ class VentanaVPN(Gtk.Window):
         self.tema_actual = 'minimalist'
         self.css_provider = None
 
+        # Configuración de TLS
+        self.force_tls = False
+        self.cargar_config_tls()
+
         # Contenedor principal con menú
         main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(main_vbox)
@@ -716,6 +755,31 @@ class VentanaVPN(Gtk.Window):
             item.connect('activate', self.cambiar_idioma, codigo)
             self.idioma_submenu.append(item)
             self.idioma_menu_items[codigo] = item
+
+        # Opción: Forzar TLS 1.0
+        self.menu_tls_item = Gtk.MenuItem()
+        tls_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        tls_icon = Gtk.Label()
+        tls_icon.set_markup('<span font_size="11000" foreground="#FFB84D">🔒</span>')
+        tls_icon.set_size_request(16, 16)  # Mismo tamaño que Gtk.IconSize.MENU
+        tls_icon.set_xalign(0.5)
+        tls_icon.set_yalign(0.5)
+        tls_icon.set_margin_start(-4)  # Mover 4 píxeles a la izquierda
+        self.tls_label = Gtk.Label(label=self.t('force_tls'))
+        self.tls_label.set_xalign(0)
+        self.tls_label.set_margin_start(-2)  # Mover 2 píxeles a la izquierda
+        tls_box.pack_start(tls_icon, False, False, 0)
+        tls_box.pack_start(self.tls_label, True, True, 0)
+
+        # Agregar label de estado (Si/No) alineado a la derecha
+        self.tls_status_label = Gtk.Label()
+        self.actualizar_estado_tls()
+        self.tls_status_label.set_xalign(1)
+        tls_box.pack_end(self.tls_status_label, False, False, 10)
+
+        self.menu_tls_item.add(tls_box)
+        self.menu_tls_item.connect('activate', self.toggle_force_tls)
+        config_menu.append(self.menu_tls_item)
 
         # Menú Ayuda
         self.menu_ayuda_item = Gtk.MenuItem(label=self.t('menu_help'))
@@ -941,6 +1005,41 @@ class VentanaVPN(Gtk.Window):
         self.tema_actual = codigo_tema
         self.guardar_tema()
         self.aplicar_tema(codigo_tema)
+
+    def cargar_config_tls(self):
+        """Carga la configuración de TLS desde el archivo"""
+        try:
+            if os.path.exists('tls_config.txt'):
+                with open('tls_config.txt', 'r') as f:
+                    valor = f.read().strip()
+                    self.force_tls = (valor == 'true')
+        except Exception:
+            pass
+
+    def guardar_config_tls(self):
+        """Guarda la configuración de TLS en un archivo"""
+        try:
+            with open('tls_config.txt', 'w') as f:
+                f.write('true' if self.force_tls else 'false')
+        except Exception:
+            pass
+
+    def toggle_force_tls(self, widget):
+        """Alterna el estado de forzar TLS 1.0"""
+        self.force_tls = not self.force_tls
+        self.guardar_config_tls()
+        self.actualizar_estado_tls()
+
+    def actualizar_estado_tls(self):
+        """Actualiza el label de estado TLS (Si/No)"""
+        estado = self.t('yes') if self.force_tls else self.t('no')
+        self.tls_status_label.set_text(estado)
+
+    def activar_tls_desde_error(self):
+        """Activa TLS 1.0 y actualiza el menú"""
+        self.force_tls = True
+        self.guardar_config_tls()
+        self.actualizar_estado_tls()
 
     def aplicar_tema(self, tema):
         """Aplica el tema CSS seleccionado"""
@@ -1381,6 +1480,10 @@ class VentanaVPN(Gtk.Window):
                 etiqueta = f"{bandera}  {self.t(label_key)} ({self.t(native_key)})"
             self.idioma_menu_items[codigo].set_label(etiqueta)
 
+        # Actualizar label de TLS
+        self.tls_label.set_text(self.t('force_tls'))
+        self.actualizar_estado_tls()
+
         # Actualizar labels del menú Ayuda
         self.manual_label.set_text(self.t('help_manual'))
         self.bug_label.set_text(self.t('help_report_bug'))
@@ -1618,7 +1721,12 @@ class VentanaVPN(Gtk.Window):
                 with os.fdopen(fd, 'w') as f:
                     f.write(f"{usuario}\n{password}\n")
 
+                # Construir comando base
                 comando = f"sudo openvpn --config \"{self.archivo_ovpn}\" --auth-user-pass \"{temp_config}\""
+
+                # Agregar parámetros TLS si está forzado
+                if self.force_tls:
+                    comando += ' --tls-version-max 1.0 --tls-cipher "DEFAULT:@SECLEVEL=0" --data-ciphers AES-128-CBC'
             except Exception as e:
                 GLib.idle_add(self.agregar_texto, f"{self.t('error')} {e}\n")
                 if temp_config and os.path.exists(temp_config):
@@ -1637,6 +1745,7 @@ class VentanaVPN(Gtk.Window):
             # Variables para detectar errores
             error_autenticacion = False
             error_archivo = False
+            error_tls = False
             conectado_exitosamente = False
 
             # Leer la salida en tiempo real
@@ -1656,11 +1765,24 @@ class VentanaVPN(Gtk.Window):
                 if "No such file" in linea or "Cannot open" in linea or "Options error" in linea or "parse error" in linea:
                     error_archivo = True
 
+                # Detectar errores de TLS deprecado
+                if not self.force_tls and ("unsupported protocol" in linea.lower() or
+                                           "wrong version number" in linea.lower() or
+                                           "sslv3 alert handshake failure" in linea.lower() or
+                                           "no shared cipher" in linea.lower() or
+                                           "tls key negotiation failed" in linea.lower() or
+                                           "tls handshake failed" in linea.lower()):
+                    error_tls = True
+
             # Esperar a que termine
             self.proceso.wait()
 
+            # Si hubo error de TLS, mostrar diálogo para activar TLS 1.0
+            if error_tls:
+                GLib.idle_add(self.agregar_texto, self.t('connection_error'))
+                GLib.idle_add(self.mostrar_dialogo_tls)
             # Si hubo errores de autenticación o archivo, mostrar error
-            if error_autenticacion or error_archivo:
+            elif error_autenticacion or error_archivo:
                 GLib.idle_add(self.agregar_texto, self.t('connection_error'))
                 GLib.idle_add(self.mostrar_error_conexion)
             # Si se conectó exitosamente y luego terminó, fue una desconexión correcta
@@ -1710,6 +1832,26 @@ class VentanaVPN(Gtk.Window):
         dialog.format_secondary_text(self.t('error_connection_msg'))
         dialog.run()
         dialog.destroy()
+        return False
+
+    def mostrar_dialogo_tls(self):
+        """Muestra un diálogo preguntando si desea activar TLS 1.0"""
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            flags=0,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.YES_NO,
+            text=self.t('tls_error_title')
+        )
+        dialog.format_secondary_text(self.t('tls_error_msg'))
+        response = dialog.run()
+        dialog.destroy()
+
+        # Si el usuario presiona "Sí", activar TLS 1.0
+        if response == Gtk.ResponseType.YES:
+            self.activar_tls_desde_error()
+            self.agregar_texto(f"\n=== TLS 1.0/AES-128-CBC {self.t('yes')} ===\n")
+
         return False
 
     def agregar_texto(self, texto):
