@@ -37,6 +37,7 @@ TRADUCCIONES = {
         'menu_language': 'Lenguaje',
         'force_tls': 'Forzar TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Modo anti-suspensión (30s)',
+        'notification_connected': 'Conectado a la VPN',
         'yes': 'Sí',
         'no': 'No',
         'tls_error_title': 'Error de TLS Deprecado',
@@ -109,6 +110,7 @@ TRADUCCIONES = {
         'menu_language': 'Language',
         'force_tls': 'Force TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Anti-suspend mode (30s)',
+        'notification_connected': 'Connected to VPN',
         'yes': 'Yes',
         'no': 'No',
         'tls_error_title': 'Deprecated TLS Error',
@@ -181,6 +183,7 @@ TRADUCCIONES = {
         'menu_language': '语言',
         'force_tls': '强制 TLS 1.0/AES-128-CBC',
         'anti_suspend': '防休眠模式 (30秒)',
+        'notification_connected': '已连接到VPN',
         'yes': '是',
         'no': '否',
         'tls_error_title': 'TLS 已弃用错误',
@@ -253,6 +256,7 @@ TRADUCCIONES = {
         'menu_language': 'Idioma',
         'force_tls': 'Forçar TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Modo anti-suspensão (30s)',
+        'notification_connected': 'Conectado à VPN',
         'yes': 'Sim',
         'no': 'Não',
         'tls_error_title': 'Erro de TLS Deprecado',
@@ -325,6 +329,7 @@ TRADUCCIONES = {
         'menu_language': 'Langue',
         'force_tls': 'Forcer TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Mode anti-suspension (30s)',
+        'notification_connected': 'Connecté au VPN',
         'yes': 'Oui',
         'no': 'Non',
         'tls_error_title': 'Erreur TLS Déprécié',
@@ -397,6 +402,7 @@ TRADUCCIONES = {
         'menu_language': 'Sprache',
         'force_tls': 'TLS 1.0/AES-128-CBC erzwingen',
         'anti_suspend': 'Anti-Suspend-Modus (30s)',
+        'notification_connected': 'Mit VPN verbunden',
         'yes': 'Ja',
         'no': 'Nein',
         'tls_error_title': 'Veralteter TLS-Fehler',
@@ -469,6 +475,7 @@ TRADUCCIONES = {
         'menu_language': '言語',
         'force_tls': 'TLS 1.0/AES-128-CBC を強制',
         'anti_suspend': 'アンチサスペンドモード (30秒)',
+        'notification_connected': 'VPNに接続しました',
         'yes': 'はい',
         'no': 'いいえ',
         'tls_error_title': '非推奨TLSエラー',
@@ -2019,6 +2026,40 @@ class VentanaVPN(Gtk.Window):
         self.boton_conectar_desconectar.set_sensitive(True)
         self.conectado = True
         self.actualizar_semaforo('conectado')
+
+        # Ocultar ventana después de 1 segundo y mostrar notificación
+        GLib.timeout_add(1000, self.ocultar_ventana_y_notificar)
+
+        return False
+
+    def ocultar_ventana_y_notificar(self):
+        """Oculta la ventana y muestra una notificación de conexión exitosa"""
+        # Ocultar la ventana (minimizar a la bandeja)
+        self.hide()
+
+        # Actualizar tooltip del status icon
+        if hasattr(self, 'status_icon') and self.status_icon:
+            try:
+                self.status_icon.set_tooltip_text(self.t('notification_connected'))
+            except:
+                pass
+
+        # Intentar mostrar notificación del sistema
+        try:
+            # Usar notify-send como comando del sistema
+            subprocess.run(
+                ['notify-send',
+                 'VPN Linux Desktop Connector',
+                 self.t('notification_connected'),
+                 '-i', 'network-vpn',
+                 '-t', '3000'],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        except:
+            pass
+
         return False
 
     def mostrar_error_conexion(self):
