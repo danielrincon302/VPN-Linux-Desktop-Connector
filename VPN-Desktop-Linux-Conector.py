@@ -36,6 +36,7 @@ TRADUCCIONES = {
         'theme_solar': 'Sistema Solar',
         'menu_language': 'Lenguaje',
         'force_tls': 'Forzar TLS 1.0/AES-128-CBC',
+        'anti_suspend': 'Modo anti-suspensión (30s)',
         'yes': 'Sí',
         'no': 'No',
         'tls_error_title': 'Error de TLS Deprecado',
@@ -107,6 +108,7 @@ TRADUCCIONES = {
         'theme_solar': 'Solar System',
         'menu_language': 'Language',
         'force_tls': 'Force TLS 1.0/AES-128-CBC',
+        'anti_suspend': 'Anti-suspend mode (30s)',
         'yes': 'Yes',
         'no': 'No',
         'tls_error_title': 'Deprecated TLS Error',
@@ -178,6 +180,7 @@ TRADUCCIONES = {
         'theme_solar': '太阳系',
         'menu_language': '语言',
         'force_tls': '强制 TLS 1.0/AES-128-CBC',
+        'anti_suspend': '防休眠模式 (30秒)',
         'yes': '是',
         'no': '否',
         'tls_error_title': 'TLS 已弃用错误',
@@ -249,6 +252,7 @@ TRADUCCIONES = {
         'theme_solar': 'Sistema Solar',
         'menu_language': 'Idioma',
         'force_tls': 'Forçar TLS 1.0/AES-128-CBC',
+        'anti_suspend': 'Modo anti-suspensão (30s)',
         'yes': 'Sim',
         'no': 'Não',
         'tls_error_title': 'Erro de TLS Deprecado',
@@ -320,6 +324,7 @@ TRADUCCIONES = {
         'theme_solar': 'Système Solaire',
         'menu_language': 'Langue',
         'force_tls': 'Forcer TLS 1.0/AES-128-CBC',
+        'anti_suspend': 'Mode anti-suspension (30s)',
         'yes': 'Oui',
         'no': 'Non',
         'tls_error_title': 'Erreur TLS Déprécié',
@@ -391,6 +396,7 @@ TRADUCCIONES = {
         'theme_solar': 'Sonnensystem',
         'menu_language': 'Sprache',
         'force_tls': 'TLS 1.0/AES-128-CBC erzwingen',
+        'anti_suspend': 'Anti-Suspend-Modus (30s)',
         'yes': 'Ja',
         'no': 'Nein',
         'tls_error_title': 'Veralteter TLS-Fehler',
@@ -462,6 +468,7 @@ TRADUCCIONES = {
         'theme_solar': '太陽系',
         'menu_language': '言語',
         'force_tls': 'TLS 1.0/AES-128-CBC を強制',
+        'anti_suspend': 'アンチサスペンドモード (30秒)',
         'yes': 'はい',
         'no': 'いいえ',
         'tls_error_title': '非推奨TLSエラー',
@@ -655,7 +662,7 @@ def obtener_tipo_conexion():
 class VentanaVPN(Gtk.Window):
     def __init__(self):
         super().__init__(title="VPN Linux Desktop Connector")
-        self.set_default_size(352, 320)
+        self.set_default_size(300, 320)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.proceso = None
         self.archivo_ovpn = None
@@ -679,6 +686,11 @@ class VentanaVPN(Gtk.Window):
         # Configuración de TLS
         self.force_tls = False
         self.cargar_config_tls()
+
+        # Configuración de modo anti-suspensión
+        self.anti_suspend_enabled = False
+        self.anti_suspend_timer_id = None
+        self.cargar_config_anti_suspend()
 
         # Contenedor principal con menú
         main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
@@ -794,6 +806,31 @@ class VentanaVPN(Gtk.Window):
         self.menu_tls_item.add(tls_box)
         self.menu_tls_item.connect('activate', self.toggle_force_tls)
         config_menu.append(self.menu_tls_item)
+
+        # Opción: Modo anti-suspensión
+        self.menu_anti_suspend_item = Gtk.MenuItem()
+        anti_suspend_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        anti_suspend_icon = Gtk.Label()
+        anti_suspend_icon.set_markup('<span font_size="11000">🖱️</span>')
+        anti_suspend_icon.set_size_request(16, 16)
+        anti_suspend_icon.set_xalign(0.5)
+        anti_suspend_icon.set_yalign(0.5)
+        anti_suspend_icon.set_margin_start(-4)
+        self.anti_suspend_label = Gtk.Label(label=self.t('anti_suspend'))
+        self.anti_suspend_label.set_xalign(0)
+        self.anti_suspend_label.set_margin_start(-2)
+        anti_suspend_box.pack_start(anti_suspend_icon, False, False, 0)
+        anti_suspend_box.pack_start(self.anti_suspend_label, True, True, 0)
+
+        # Agregar label de estado (Si/No) alineado a la derecha
+        self.anti_suspend_status_label = Gtk.Label()
+        self.actualizar_estado_anti_suspend()
+        self.anti_suspend_status_label.set_xalign(1)
+        anti_suspend_box.pack_end(self.anti_suspend_status_label, False, False, 10)
+
+        self.menu_anti_suspend_item.add(anti_suspend_box)
+        self.menu_anti_suspend_item.connect('activate', self.toggle_anti_suspend)
+        config_menu.append(self.menu_anti_suspend_item)
 
         # Menú Ayuda
         self.menu_ayuda_item = Gtk.MenuItem(label=self.t('menu_help'))
@@ -915,6 +952,13 @@ class VentanaVPN(Gtk.Window):
         self.entry_password.set_visibility(False)  # Ocultar contraseña
         self.entry_password.set_invisible_char('*')  # Mostrar asteriscos
         self.entry_password.set_hexpand(True)
+
+        # Agregar ícono de ojo dentro del campo de contraseña
+        self.password_visible = False
+        self.entry_password.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "view-reveal-symbolic")
+        self.entry_password.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, "Mostrar/Ocultar contraseña")
+        self.entry_password.connect("icon-press", self.on_toggle_password_visibility)
+
         grid.attach(self.entry_password, 0, 1, 1, 1)
 
         # Separador entre logo/campos y selector de archivo
@@ -1068,6 +1112,86 @@ class VentanaVPN(Gtk.Window):
         self.force_tls = True
         self.guardar_config_tls()
         self.actualizar_estado_tls()
+
+    def cargar_config_anti_suspend(self):
+        """Carga la configuración de modo anti-suspensión desde el archivo"""
+        try:
+            if os.path.exists('anti_suspend_config.txt'):
+                with open('anti_suspend_config.txt', 'r') as f:
+                    valor = f.read().strip()
+                    self.anti_suspend_enabled = (valor == 'true')
+                    if self.anti_suspend_enabled:
+                        self.iniciar_anti_suspend()
+        except Exception:
+            pass
+
+    def guardar_config_anti_suspend(self):
+        """Guarda la configuración de modo anti-suspensión en un archivo"""
+        try:
+            with open('anti_suspend_config.txt', 'w') as f:
+                f.write('true' if self.anti_suspend_enabled else 'false')
+        except Exception:
+            pass
+
+    def toggle_anti_suspend(self, widget):
+        """Alterna el estado del modo anti-suspensión"""
+        self.anti_suspend_enabled = not self.anti_suspend_enabled
+        self.guardar_config_anti_suspend()
+        self.actualizar_estado_anti_suspend()
+
+        if self.anti_suspend_enabled:
+            self.iniciar_anti_suspend()
+        else:
+            self.detener_anti_suspend()
+
+    def actualizar_estado_anti_suspend(self):
+        """Actualiza el label de estado del modo anti-suspensión (Si/No)"""
+        estado = self.t('yes') if self.anti_suspend_enabled else self.t('no')
+        self.anti_suspend_status_label.set_text(estado)
+
+    def iniciar_anti_suspend(self):
+        """Inicia el temporizador para mover el mouse cada 30 segundos"""
+        if self.anti_suspend_timer_id:
+            GLib.source_remove(self.anti_suspend_timer_id)
+        # Iniciar temporizador de 30 segundos (30000 ms)
+        self.anti_suspend_timer_id = GLib.timeout_add(30000, self.mover_mouse_ligero)
+
+    def detener_anti_suspend(self):
+        """Detiene el temporizador del modo anti-suspensión"""
+        if self.anti_suspend_timer_id:
+            GLib.source_remove(self.anti_suspend_timer_id)
+            self.anti_suspend_timer_id = None
+
+    def mover_mouse_ligero(self):
+        """Mueve el mouse ligeramente de forma aleatoria"""
+        import random
+        from gi.repository import Gdk
+
+        try:
+            # Obtener el display y el dispositivo de puntero
+            display = Gdk.Display.get_default()
+            seat = display.get_default_seat()
+            pointer = seat.get_pointer()
+
+            # Obtener posición actual
+            screen, x, y = pointer.get_position()
+
+            # Mover ligeramente (entre -25 y 25 píxeles en cada dirección)
+            dx = random.randint(-25, 25)
+            dy = random.randint(-25, 25)
+
+            # Calcular nueva posición
+            new_x = x + dx
+            new_y = y + dy
+
+            # Mover el puntero
+            pointer.warp(screen, new_x, new_y)
+
+        except Exception as e:
+            print(f"Error al mover el mouse: {e}")
+
+        # Retornar True para que el temporizador continúe
+        return True
 
     def aplicar_tema(self, tema):
         """Aplica el tema CSS seleccionado"""
@@ -1512,6 +1636,10 @@ class VentanaVPN(Gtk.Window):
         self.tls_label.set_text(self.t('force_tls'))
         self.actualizar_estado_tls()
 
+        # Actualizar label de modo anti-suspensión
+        self.anti_suspend_label.set_text(self.t('anti_suspend'))
+        self.actualizar_estado_anti_suspend()
+
         # Actualizar labels del menú Ayuda
         self.manual_label.set_text(self.t('help_manual'))
         self.bug_label.set_text(self.t('help_report_bug'))
@@ -1559,6 +1687,19 @@ class VentanaVPN(Gtk.Window):
         # Si el buffer está vacío o contiene solo un mensaje inicial, actualizarlo
         if not current_text or current_text in mensajes_iniciales:
             self.textbuffer.set_text(self.t('initial_msg'))
+
+    def on_toggle_password_visibility(self, entry, icon_pos, event):
+        """Alterna entre mostrar y ocultar la contraseña"""
+        self.password_visible = not self.password_visible
+        self.entry_password.set_visibility(self.password_visible)
+
+        # Cambiar el ícono según el estado
+        if self.password_visible:
+            # Ojo tachado cuando la contraseña es visible
+            self.entry_password.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "view-conceal-symbolic")
+        else:
+            # Ojo normal cuando la contraseña está oculta
+            self.entry_password.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "view-reveal-symbolic")
 
     def on_seleccionar_ovpn_clicked(self, widget, event=None):
         """Abre un diálogo para seleccionar el archivo OVPN"""
@@ -2562,6 +2703,9 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
                 self.proceso.wait(timeout=3)
             except:
                 pass
+
+        # Detener el temporizador de anti-suspensión si está activo
+        self.detener_anti_suspend()
 
         Gtk.main_quit()
 
