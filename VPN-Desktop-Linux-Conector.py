@@ -664,6 +664,7 @@ class VentanaVPN(Gtk.Window):
         super().__init__(title="VPN Linux Desktop Connector")
         self.set_default_size(300, 320)
         self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_resizable(False)  # Eliminar botón maximizar y deshabilitar redimensionamiento
         self.proceso = None
         self.archivo_ovpn = None
 
