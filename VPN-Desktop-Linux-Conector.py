@@ -1290,6 +1290,17 @@ class VentanaVPN(Gtk.Window):
                 color: #2d3748;
                 font-weight: 500;
             }
+
+            tooltip {
+                background-color: #2d3748;
+                color: white;
+                border: 1px solid #1a202c;
+                border-radius: 4px;
+            }
+
+            tooltip label {
+                color: white;
+            }
             """
         elif tema == 'minimalist':
             css = """
@@ -1369,6 +1380,17 @@ class VentanaVPN(Gtk.Window):
 
             label {
                 color: #333333;
+            }
+
+            tooltip {
+                background-color: #333333;
+                color: white;
+                border: 1px solid #1a1a1a;
+                border-radius: 2px;
+            }
+
+            tooltip label {
+                color: white;
             }
             """
         elif tema == 'modern':
@@ -1476,6 +1498,19 @@ class VentanaVPN(Gtk.Window):
             label {
                 color: #312e81;
                 font-weight: 600;
+            }
+
+            tooltip {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: 1px solid #5568d3;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            }
+
+            tooltip label {
+                color: white;
+                font-weight: 500;
             }
             """
         elif tema == 'solar':
