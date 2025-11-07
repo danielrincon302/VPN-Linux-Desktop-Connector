@@ -917,15 +917,11 @@ class VentanaVPN(Gtk.Window):
         vbox.set_margin_end(7)
         main_vbox.pack_start(vbox, True, True, 0)
 
-        # Contenedor horizontal principal para ícono (33%) y campos (67%)
-        hbox_principal = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=11)
-        vbox.pack_start(hbox_principal, False, False, 0)
-
-        # Lado izquierdo: Ícono (33%)
+        # Logo centrado en la parte superior
         icono_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         icono_box.set_halign(Gtk.Align.CENTER)
         icono_box.set_valign(Gtk.Align.CENTER)
-        hbox_principal.pack_start(icono_box, True, True, 0)
+        vbox.pack_start(icono_box, False, False, 5)
 
         # Cargar y mostrar el ícono
         try:
@@ -938,28 +934,42 @@ class VentanaVPN(Gtk.Window):
         except Exception as e:
             print(f"No se pudo cargar el ícono ico-index.png: {e}")
 
-        # Lado derecho: Grid con campos (67%)
-        campos_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        hbox_principal.pack_start(campos_box, True, True, 0)
+        # Contenedor para Usuario (etiqueta + caja)
+        usuario_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
 
-        # Grid para campos de usuario y contraseña
-        grid = Gtk.Grid()
-        grid.set_column_spacing(10)
-        grid.set_row_spacing(10)
-        campos_box.pack_start(grid, True, True, 0)
+        # Etiqueta Usuario
+        label_usuario = Gtk.Label()
+        label_usuario.set_markup(f'<span size="small">{self.t("label_user")}</span>')
+        label_usuario.set_halign(Gtk.Align.START)
+        label_usuario.set_margin_start(10)
+        usuario_container.pack_start(label_usuario, False, False, 0)
 
-        # Campo de Usuario (sin etiqueta, solo placeholder)
+        # Campo de Usuario
         self.entry_usuario = Gtk.Entry()
-        self.entry_usuario.set_placeholder_text(self.t('label_user').replace(':', ''))
-        self.entry_usuario.set_hexpand(True)
-        grid.attach(self.entry_usuario, 0, 0, 1, 1)
+        self.entry_usuario.set_name("compact-entry")
+        self.entry_usuario.set_margin_start(10)
+        self.entry_usuario.set_margin_end(10)
+        usuario_container.pack_start(self.entry_usuario, False, False, 0)
 
-        # Campo de Contraseña (sin etiqueta, solo placeholder)
+        vbox.pack_start(usuario_container, False, False, 0)
+
+        # Contenedor para Contraseña (etiqueta + caja)
+        password_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
+
+        # Etiqueta Contraseña
+        label_password = Gtk.Label()
+        label_password.set_markup(f'<span size="small">{self.t("label_password")}</span>')
+        label_password.set_halign(Gtk.Align.START)
+        label_password.set_margin_start(10)
+        password_container.pack_start(label_password, False, False, 0)
+
+        # Campo de Contraseña
         self.entry_password = Gtk.Entry()
-        self.entry_password.set_placeholder_text(self.t('label_password').replace(':', ''))
+        self.entry_password.set_name("compact-entry")
         self.entry_password.set_visibility(False)  # Ocultar contraseña
         self.entry_password.set_invisible_char('*')  # Mostrar asteriscos
-        self.entry_password.set_hexpand(True)
+        self.entry_password.set_margin_start(10)
+        self.entry_password.set_margin_end(10)
 
         # Agregar ícono de ojo dentro del campo de contraseña
         self.password_visible = False
@@ -967,12 +977,14 @@ class VentanaVPN(Gtk.Window):
         self.entry_password.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, "Mostrar/Ocultar contraseña")
         self.entry_password.connect("icon-press", self.on_toggle_password_visibility)
 
-        grid.attach(self.entry_password, 0, 1, 1, 1)
+        password_container.pack_start(self.entry_password, False, False, 0)
 
-        # Separador entre logo/campos y selector de archivo
+        vbox.pack_start(password_container, False, False, 0)
+
+        # Separador entre campos y controles
         vbox.pack_start(Gtk.Box(), False, False, 5)
 
-        # Contenedor horizontal para botones y semáforo
+        # Contenedor horizontal para carpeta, botón y candado
         hbox_controles = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         hbox_controles.set_halign(Gtk.Align.CENTER)
         vbox.pack_start(hbox_controles, False, False, 0)
@@ -995,7 +1007,7 @@ class VentanaVPN(Gtk.Window):
         self.boton_conectar_desconectar.connect("clicked", self.on_toggle_conexion_clicked)
         hbox_controles.pack_start(self.boton_conectar_desconectar, False, False, 0)
 
-        # Semáforo de estado seguido del botón Conectar (inicialmente rojo - desconectado)
+        # Semáforo de estado (candado - inicialmente rojo - desconectado)
         self.semaforo_image = Gtk.Image()
         self.semaforo_image.set_from_file("icons/red.fw.png")
         self.semaforo_image.set_size_request(40, 40)
@@ -1004,21 +1016,11 @@ class VentanaVPN(Gtk.Window):
         # Variable para rastrear el estado de conexión
         self.conectado = False
 
-        # Área de texto con scroll para logs
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_hexpand(True)
-        scrolled.set_vexpand(True)
-        scrolled.set_size_request(-1, 48)
-        vbox.pack_start(scrolled, True, True, 0)
-
-        # TextView para mostrar la salida
+        # Crear textview y textbuffer ocultos (para compatibilidad con código existente)
         self.textview = Gtk.TextView()
         self.textview.set_editable(False)
         self.textview.set_monospace(True)
         self.textbuffer = self.textview.get_buffer()
-        scrolled.add(self.textview)
-
-        # Agregar mensaje inicial
         self.textbuffer.set_text(self.t('initial_msg'))
 
         # Cargar credenciales si existen
@@ -1263,6 +1265,11 @@ class VentanaVPN(Gtk.Window):
                 box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
             }
 
+            #compact-entry {
+                padding: 2px 6px;
+                min-height: 20px;
+            }
+
             button {
                 background-image: linear-gradient(to bottom, #8dc5e8, #6eb5e0);
                 color: black;
@@ -1354,6 +1361,11 @@ class VentanaVPN(Gtk.Window):
 
             entry:focus {
                 border-color: #999999;
+            }
+
+            #compact-entry {
+                padding: 2px 6px;
+                min-height: 20px;
             }
 
             button {
@@ -1458,6 +1470,11 @@ class VentanaVPN(Gtk.Window):
                 border-color: #667eea;
                 box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
                 background-color: #fafbff;
+            }
+
+            #compact-entry {
+                padding: 2px 6px;
+                min-height: 20px;
             }
 
             button {
@@ -1578,6 +1595,11 @@ class VentanaVPN(Gtk.Window):
                 border-color: #ffb84d;
                 box-shadow: 0 0 12px rgba(255, 149, 0, 0.6);
                 background-color: #1f2333;
+            }
+
+            #compact-entry {
+                padding: 2px 6px;
+                min-height: 20px;
             }
 
             button {
