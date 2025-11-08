@@ -1,13 +1,19 @@
+![VPN Linux Desktop Connector](img/header.png)
+
 # VPN Linux Desktop Connector
 
 Una aplicación de escritorio moderna para gestionar conexiones VPN en Linux usando OpenVPN con interfaz gráfica GTK3.
+
+## Autores
+
+Urreste García, L. A., Capote Casas, F. E., Castellanos Muriel, J. A., & Rincón Brito, C. D. (2025). VPN Linux Desktop Connector (v1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.10293847
 
 ## Características
 
 - ✅ Interfaz gráfica intuitiva con GTK3
 - ✅ **Íconos personalizados** en ventana y bandeja del sistema
 - ✅ Soporte para múltiples idiomas (Español 🇨🇴, Inglés 🇬🇧, Chino 🇨🇳, Portugués 🇧🇷, Francés 🇫🇷, Alemán 🇩🇪, Japonés 🇯🇵)
-- ✅ 3 temas visuales (Gerencial, Minimalista, Oscuro)
+- ✅ 4 temas visuales (Gerencial, Minimalista, Moderno, Sistema Solar)
 - ✅ Almacenamiento seguro de credenciales (encriptación)
 - ✅ Logs en tiempo real de conexión
 - ✅ **Ícono de bandeja del sistema** con menú contextual
@@ -81,7 +87,8 @@ python3 VPN-Desktop-Linux-Conector.py
 2. Selecciona entre:
    - **Gerencial**: Estilo corporativo con azules y blancos
    - **Minimalista**: Diseño limpio y simple
-   - **Oscuro**: Tema oscuro para reducir fatiga visual
+   - **Moderno**: Tema moderno con gradientes vibrantes
+   - **Sistema Solar**: Tema oscuro inspirado en el espacio con colores del sistema solar
 
 ## Indicador de Bandeja del Sistema
 
