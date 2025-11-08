@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Pango
 import subprocess
 import threading
 import signal
@@ -672,16 +672,33 @@ class VentanaVPN(Gtk.Window):
         self.set_default_size(300, 320)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_resizable(False)  # Eliminar botón maximizar y deshabilitar redimensionamiento
+
+        # Establecer WM_CLASS para que el gestor de ventanas reconozca la aplicación
+        self.set_wmclass("VPN-Linux-Desktop-Connector", "VPN-Linux-Desktop-Connector")
+
         self.proceso = None
         self.archivo_ovpn = None
 
-        # Establecer ícono de la ventana
-        icon_path = os.path.join(os.path.dirname(__file__), "icons", "VPN-LDC_32x32.svg")
-        if os.path.exists(icon_path):
-            try:
-                self.set_icon_from_file(icon_path)
-            except Exception as e:
-                print(f"No se pudo cargar el ícono: {e}")
+        # Establecer ícono de la ventana y de la aplicación para la barra de tareas
+        try:
+            from gi.repository import GdkPixbuf
+            # Intentar con PNG primero (más compatible con la barra de tareas)
+            icon_path_png = os.path.join(os.path.dirname(__file__), "icons", "ico-index.png")
+            icon_path_svg = os.path.join(os.path.dirname(__file__), "icons", "VPN-LDC_32x32.svg")
+
+            if os.path.exists(icon_path_png):
+                # Cargar PNG con GdkPixbuf (más compatible)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_path_png, 64, 64, True)
+                # Establecer ícono por defecto para la aplicación
+                Gtk.Window.set_default_icon(pixbuf)
+                # Establecer ícono de esta ventana
+                self.set_icon(pixbuf)
+            elif os.path.exists(icon_path_svg):
+                # Fallback a SVG si PNG no existe
+                Gtk.Window.set_default_icon_from_file(icon_path_svg)
+                self.set_icon_from_file(icon_path_svg)
+        except Exception as e:
+            print(f"No se pudo cargar el ícono: {e}")
 
         # Idioma por defecto
         self.idioma_actual = 'es'
@@ -981,13 +998,12 @@ class VentanaVPN(Gtk.Window):
 
         vbox.pack_start(password_container, False, False, 0)
 
-        # Separador entre campos y controles
-        vbox.pack_start(Gtk.Box(), False, False, 5)
-
-        # Contenedor horizontal para carpeta, botón y candado
-        hbox_controles = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        hbox_controles.set_halign(Gtk.Align.CENTER)
-        vbox.pack_start(hbox_controles, False, False, 0)
+        # Contenedor horizontal para el ícono de archivo y el nombre del archivo
+        hbox_archivo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        hbox_archivo.set_halign(Gtk.Align.FILL)
+        hbox_archivo.set_margin_start(10)
+        hbox_archivo.set_margin_end(10)
+        vbox.pack_start(hbox_archivo, False, False, 0)
 
         # Ícono selector de Archivo OVPN (carpeta clickeable sin borde)
         self.folder_eventbox = Gtk.EventBox()
@@ -996,16 +1012,32 @@ class VentanaVPN(Gtk.Window):
         self.folder_eventbox.add(self.folder_icon)
         self.folder_eventbox.set_tooltip_text(self.t('btn_select_ovpn'))
         self.folder_eventbox.connect("button-press-event", self.on_seleccionar_ovpn_clicked)
-        hbox_controles.pack_start(self.folder_eventbox, False, False, 0)
+        hbox_archivo.pack_start(self.folder_eventbox, False, False, 0)
 
         # Guardar referencia al eventbox como boton_seleccionar_ovpn para mantener compatibilidad
         self.boton_seleccionar_ovpn = self.folder_eventbox
 
+        # Etiqueta para mostrar el nombre del archivo seleccionado
+        self.label_archivo_seleccionado = Gtk.Label()
+        self.label_archivo_seleccionado.set_markup('<span size="small">Seleccione el archivo ovpn</span>')
+        self.label_archivo_seleccionado.set_halign(Gtk.Align.START)
+        self.label_archivo_seleccionado.set_ellipsize(Pango.EllipsizeMode.END)
+        self.label_archivo_seleccionado.set_line_wrap(False)
+        self.label_archivo_seleccionado.set_max_width_chars(30)
+        hbox_archivo.pack_start(self.label_archivo_seleccionado, True, True, 0)
+
+        # Contenedor horizontal para botón conectar y semáforo
+        hbox_controles = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        hbox_controles.set_halign(Gtk.Align.FILL)
+        hbox_controles.set_margin_start(10)
+        hbox_controles.set_margin_end(10)
+        vbox.pack_start(hbox_controles, False, False, 0)
+
         # Botón combinado conectar/desconectar
         self.boton_conectar_desconectar = Gtk.Button(label=self.t('btn_connect'))
-        self.boton_conectar_desconectar.set_size_request(180, 40)
+        self.boton_conectar_desconectar.set_size_request(-1, 40)  # -1 permite expansión horizontal
         self.boton_conectar_desconectar.connect("clicked", self.on_toggle_conexion_clicked)
-        hbox_controles.pack_start(self.boton_conectar_desconectar, False, False, 0)
+        hbox_controles.pack_start(self.boton_conectar_desconectar, True, True, 0)
 
         # Semáforo de estado (candado - inicialmente rojo - desconectado)
         self.semaforo_image = Gtk.Image()
@@ -1793,7 +1825,9 @@ class VentanaVPN(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.archivo_ovpn = dialog.get_filename()
-            self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {self.archivo_ovpn.split('/')[-1]}")
+            nombre_archivo = self.archivo_ovpn.split('/')[-1]
+            self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {nombre_archivo}")
+            self.label_archivo_seleccionado.set_markup(f'<span size="small">{nombre_archivo}</span>')
             self.agregar_texto(f"{self.t('file_selected')} {self.archivo_ovpn}\n")
 
         dialog.destroy()
@@ -1813,7 +1847,9 @@ class VentanaVPN(Gtk.Window):
                 if len(lineas) >= 3:
                     self.archivo_ovpn = lineas[2].strip()
                     if self.archivo_ovpn:
-                        self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {self.archivo_ovpn.split('/')[-1]}")
+                        nombre_archivo = self.archivo_ovpn.split('/')[-1]
+                        self.boton_seleccionar_ovpn.set_tooltip_text(f"✓ {nombre_archivo}")
+                        self.label_archivo_seleccionado.set_markup(f'<span size="small">{nombre_archivo}</span>')
         except FileNotFoundError:
             pass  # Si no existe el archivo, no hacer nada
 
