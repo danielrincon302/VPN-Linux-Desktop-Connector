@@ -1054,7 +1054,8 @@ class VentanaVPN(Gtk.Window):
 
         # Semáforo de estado (candado - inicialmente rojo - desconectado)
         self.semaforo_image = Gtk.Image()
-        self.semaforo_image.set_from_file("icons/red.fw.png")
+        red_icon_path = os.path.join(os.path.dirname(__file__), "icons", "red.fw.png")
+        self.semaforo_image.set_from_file(red_icon_path)
         self.semaforo_image.set_size_request(40, 40)
         hbox_controles.pack_start(self.semaforo_image, False, False, 0)
 
@@ -2191,11 +2192,14 @@ class VentanaVPN(Gtk.Window):
         Estados: 'conectado', 'desconectado', 'conectando', 'desconectando'
         """
         if estado == 'conectado':
-            self.semaforo_image.set_from_file("icons/green.fw.png")
+            icon_path = os.path.join(os.path.dirname(__file__), "icons", "green.fw.png")
+            self.semaforo_image.set_from_file(icon_path)
         elif estado in ['conectando', 'desconectando']:
-            self.semaforo_image.set_from_file("icons/yellow.fw.png")
+            icon_path = os.path.join(os.path.dirname(__file__), "icons", "yellow.fw.png")
+            self.semaforo_image.set_from_file(icon_path)
         else:  # desconectado
-            self.semaforo_image.set_from_file("icons/red.fw.png")
+            icon_path = os.path.join(os.path.dirname(__file__), "icons", "red.fw.png")
+            self.semaforo_image.set_from_file(icon_path)
         return False
 
     def reactivar_botones(self):
