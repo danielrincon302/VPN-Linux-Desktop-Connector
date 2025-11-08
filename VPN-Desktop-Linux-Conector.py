@@ -37,6 +37,7 @@ TRADUCCIONES = {
         'menu_language': 'Lenguaje',
         'force_tls': 'Forzar TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Modo anti-suspensión (30s)',
+        'show_console_log': 'Mostrar log de consola',
         'notification_connected': 'Conectado a la VPN',
         'yes': 'Sí',
         'no': 'No',
@@ -110,6 +111,7 @@ TRADUCCIONES = {
         'menu_language': 'Language',
         'force_tls': 'Force TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Anti-suspend mode (30s)',
+        'show_console_log': 'Show console log',
         'notification_connected': 'Connected to VPN',
         'yes': 'Yes',
         'no': 'No',
@@ -183,6 +185,7 @@ TRADUCCIONES = {
         'menu_language': '语言',
         'force_tls': '强制 TLS 1.0/AES-128-CBC',
         'anti_suspend': '防休眠模式 (30秒)',
+        'show_console_log': '显示控制台日志',
         'notification_connected': '已连接到VPN',
         'yes': '是',
         'no': '否',
@@ -256,6 +259,7 @@ TRADUCCIONES = {
         'menu_language': 'Idioma',
         'force_tls': 'Forçar TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Modo anti-suspensão (30s)',
+        'show_console_log': 'Mostrar log do console',
         'notification_connected': 'Conectado à VPN',
         'yes': 'Sim',
         'no': 'Não',
@@ -329,6 +333,7 @@ TRADUCCIONES = {
         'menu_language': 'Langue',
         'force_tls': 'Forcer TLS 1.0/AES-128-CBC',
         'anti_suspend': 'Mode anti-suspension (30s)',
+        'show_console_log': 'Afficher le journal de la console',
         'notification_connected': 'Connecté au VPN',
         'yes': 'Oui',
         'no': 'Non',
@@ -402,6 +407,7 @@ TRADUCCIONES = {
         'menu_language': 'Sprache',
         'force_tls': 'TLS 1.0/AES-128-CBC erzwingen',
         'anti_suspend': 'Anti-Suspend-Modus (30s)',
+        'show_console_log': 'Konsolenprotokoll anzeigen',
         'notification_connected': 'Mit VPN verbunden',
         'yes': 'Ja',
         'no': 'Nein',
@@ -475,6 +481,7 @@ TRADUCCIONES = {
         'menu_language': '言語',
         'force_tls': 'TLS 1.0/AES-128-CBC を強制',
         'anti_suspend': 'アンチサスペンドモード (30秒)',
+        'show_console_log': 'コンソールログを表示',
         'notification_connected': 'VPNに接続しました',
         'yes': 'はい',
         'no': 'いいえ',
@@ -717,6 +724,10 @@ class VentanaVPN(Gtk.Window):
         self.anti_suspend_timer_id = None
         self.cargar_config_anti_suspend()
 
+        # Configuración de mostrar log de consola
+        self.show_console_log = False
+        self.cargar_config_console_log()
+
         # Contenedor principal con menú
         main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(main_vbox)
@@ -869,6 +880,25 @@ class VentanaVPN(Gtk.Window):
         self.menu_anti_suspend_item.add(anti_suspend_box)
         self.menu_anti_suspend_item.connect('activate', self.toggle_anti_suspend)
         config_menu.append(self.menu_anti_suspend_item)
+
+        # Opción: Mostrar log de consola
+        self.menu_console_log_item = Gtk.MenuItem()
+        console_log_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        console_log_icon = Gtk.Image.new_from_icon_name('utilities-terminal', Gtk.IconSize.MENU)
+        self.console_log_label = Gtk.Label(label=self.t('show_console_log'))
+        self.console_log_label.set_xalign(0)
+        console_log_box.pack_start(console_log_icon, False, False, 0)
+        console_log_box.pack_start(self.console_log_label, True, True, 0)
+
+        # Agregar label de estado (Si/No) alineado a la derecha
+        self.console_log_status_label = Gtk.Label()
+        self.actualizar_estado_console_log()
+        self.console_log_status_label.set_xalign(1)
+        console_log_box.pack_end(self.console_log_status_label, False, False, 10)
+
+        self.menu_console_log_item.add(console_log_box)
+        self.menu_console_log_item.connect('activate', self.toggle_console_log)
+        config_menu.append(self.menu_console_log_item)
 
         # Menú Ayuda
         self.menu_ayuda_item = Gtk.MenuItem(label=self.t('menu_help'))
@@ -1062,12 +1092,59 @@ class VentanaVPN(Gtk.Window):
         # Variable para rastrear el estado de conexión
         self.conectado = False
 
-        # Crear textview y textbuffer ocultos (para compatibilidad con código existente)
+        # Crear textview y textbuffer para mostrar logs de consola
         self.textview = Gtk.TextView()
         self.textview.set_editable(False)
         self.textview.set_monospace(True)
+        self.textview.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self.textview.set_left_margin(5)
+        self.textview.set_right_margin(5)
+        self.textview.set_top_margin(5)
+        self.textview.set_bottom_margin(5)
+
+        # Agregar clase CSS específica para la consola
+        self.textview.get_style_context().add_class("console-log")
+
+        # Aplicar colores directamente con override (más prioridad)
+        from gi.repository import Gdk
+
+        # Fondo negro
+        color_fondo = Gdk.RGBA()
+        color_fondo.parse("#000000")
+        self.textview.override_background_color(Gtk.StateFlags.NORMAL, color_fondo)
+
+        # Texto verde brillante
+        color_texto = Gdk.RGBA()
+        color_texto.parse("#00ff00")
+        self.textview.override_color(Gtk.StateFlags.NORMAL, color_texto)
+
         self.textbuffer = self.textview.get_buffer()
-        self.textbuffer.set_text(self.t('initial_msg'))
+
+        # Crear una etiqueta de texto (tag) para el color verde
+        self.tag_console = self.textbuffer.create_tag("console", foreground="#00ff00", family="monospace")
+
+        # Establecer el texto inicial con el tag
+        start_iter = self.textbuffer.get_start_iter()
+        self.textbuffer.insert_with_tags_by_name(start_iter, self.t('initial_msg'), "console")
+
+        # Crear ScrolledWindow para el textview (altura reducida a 70px)
+        self.scrolled_window = Gtk.ScrolledWindow()
+        self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.scrolled_window.set_size_request(-1, 70)
+        self.scrolled_window.set_margin_start(10)
+        self.scrolled_window.set_margin_end(10)
+        self.scrolled_window.set_margin_top(10)
+        self.scrolled_window.set_margin_bottom(10)
+
+        # Agregar un borde visible al scrolled window
+        self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
+
+        self.scrolled_window.add(self.textview)
+        vbox.pack_start(self.scrolled_window, True, True, 0)
+
+        # Inicialmente ocultar el log de consola (se mostrará si está habilitado en config)
+        self.scrolled_window.set_no_show_all(True)
+        self.scrolled_window.hide()
 
         # Cargar credenciales si existen
         self.cargar_credenciales()
@@ -1076,6 +1153,9 @@ class VentanaVPN(Gtk.Window):
         self.cargar_tema_guardado()
         self.aplicar_tema(self.tema_actual)
         self.actualizar_marcador_tema()
+
+        # Actualizar visibilidad del log de consola según configuración
+        self.actualizar_visibilidad_console_log()
 
         # Crear ícono de bandeja del sistema
         self.crear_status_icon()
@@ -1228,6 +1308,51 @@ class VentanaVPN(Gtk.Window):
             GLib.source_remove(self.anti_suspend_timer_id)
             self.anti_suspend_timer_id = None
 
+    def cargar_config_console_log(self):
+        """Carga la configuración de mostrar log de consola desde el archivo"""
+        try:
+            if os.path.exists('console_log_config.txt'):
+                with open('console_log_config.txt', 'r') as f:
+                    valor = f.read().strip()
+                    self.show_console_log = (valor == 'true')
+        except Exception:
+            pass
+
+    def guardar_config_console_log(self):
+        """Guarda la configuración de mostrar log de consola en un archivo"""
+        try:
+            with open('console_log_config.txt', 'w') as f:
+                f.write('true' if self.show_console_log else 'false')
+        except Exception:
+            pass
+
+    def toggle_console_log(self, widget):
+        """Alterna el estado de mostrar log de consola"""
+        self.show_console_log = not self.show_console_log
+        self.guardar_config_console_log()
+        self.actualizar_estado_console_log()
+        self.actualizar_visibilidad_console_log()
+
+    def actualizar_estado_console_log(self):
+        """Actualiza el label de estado de mostrar log de consola (Si/No)"""
+        estado = self.t('yes') if self.show_console_log else self.t('no')
+        self.console_log_status_label.set_text(estado)
+
+    def actualizar_visibilidad_console_log(self):
+        """Muestra u oculta el textview de log de consola según la configuración y ajusta el tamaño de la ventana"""
+        # Obtener el ancho actual de la ventana
+        ancho_actual = self.get_size()[0]
+
+        if self.show_console_log:
+            # Mostrar el log y expandir la ventana
+            self.textview.show()  # Mostrar explícitamente el textview
+            self.scrolled_window.show()
+            self.resize(ancho_actual, 420)  # Altura expandida
+        else:
+            # Ocultar el log y contraer la ventana
+            self.scrolled_window.hide()
+            self.resize(ancho_actual, 320)  # Altura original
+
     def mover_mouse_ligero(self):
         """Mueve el mouse ligeramente de forma aleatoria"""
         import random
@@ -1356,6 +1481,22 @@ class VentanaVPN(Gtk.Window):
                 font-size: 10px;
             }
 
+            /* Estilos específicos para la consola de logs */
+            textview.console-log {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                border: 2px solid #4a5568;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
+            textview.console-log text {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
             label {
                 color: #2d3748;
                 font-weight: 500;
@@ -1451,6 +1592,22 @@ class VentanaVPN(Gtk.Window):
 
             textview text {
                 font-size: 10px;
+            }
+
+            /* Estilos específicos para la consola de logs */
+            textview.console-log {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                border: 2px solid #4a5568;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
+            textview.console-log text {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                font-family: monospace;
+                font-size: 11px;
             }
 
             label {
@@ -1573,6 +1730,22 @@ class VentanaVPN(Gtk.Window):
                 background-color: #ffffff;
                 color: #1e1b4b;
                 font-size: 10px;
+            }
+
+            /* Estilos específicos para la consola de logs */
+            textview.console-log {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                border: 2px solid #4a5568;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
+            textview.console-log text {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                font-family: monospace;
+                font-size: 11px;
             }
 
             label {
@@ -1704,6 +1877,22 @@ class VentanaVPN(Gtk.Window):
                 font-size: 10px;
             }
 
+            /* Estilos específicos para la consola de logs */
+            textview.console-log {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                border: 2px solid #4a5568;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
+            textview.console-log text {
+                background-color: #1e1e1e;
+                color: #00ff00;
+                font-family: monospace;
+                font-size: 11px;
+            }
+
             label {
                 color: #e8e8e8;
                 font-weight: 600;
@@ -1761,6 +1950,10 @@ class VentanaVPN(Gtk.Window):
         self.anti_suspend_label.set_text(self.t('anti_suspend'))
         self.actualizar_estado_anti_suspend()
 
+        # Actualizar label de mostrar log de consola
+        self.console_log_label.set_text(self.t('show_console_log'))
+        self.actualizar_estado_console_log()
+
         # Actualizar labels del menú Ayuda
         self.manual_label.set_text(self.t('help_manual'))
         self.bug_label.set_text(self.t('help_report_bug'))
@@ -1807,7 +2000,9 @@ class VentanaVPN(Gtk.Window):
 
         # Si el buffer está vacío o contiene solo un mensaje inicial, actualizarlo
         if not current_text or current_text in mensajes_iniciales:
-            self.textbuffer.set_text(self.t('initial_msg'))
+            self.textbuffer.set_text("")
+            start_iter = self.textbuffer.get_start_iter()
+            self.textbuffer.insert_with_tags_by_name(start_iter, self.t('initial_msg'), "console")
 
     def on_toggle_password_visibility(self, entry, icon_pos, event):
         """Alterna entre mostrar y ocultar la contraseña"""
@@ -2180,11 +2375,13 @@ class VentanaVPN(Gtk.Window):
 
     def agregar_texto(self, texto):
         end_iter = self.textbuffer.get_end_iter()
-        self.textbuffer.insert(end_iter, texto)
+        # Insertar el texto con el tag "console" para aplicar color verde
+        self.textbuffer.insert_with_tags_by_name(end_iter, texto, "console")
 
         # Auto-scroll al final
-        mark = self.textbuffer.get_insert()
-        self.textview.scroll_to_mark(mark, 0.0, True, 0.0, 1.0)
+        end_iter = self.textbuffer.get_end_iter()
+        mark = self.textbuffer.create_mark(None, end_iter, False)
+        self.textview.scroll_to_mark(mark, 0.0, False, 0.0, 0.0)
         return False
 
     def actualizar_semaforo(self, estado):
