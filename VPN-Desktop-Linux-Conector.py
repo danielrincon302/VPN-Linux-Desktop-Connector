@@ -705,7 +705,7 @@ class VentanaVPN(Gtk.Window):
         self.cargar_idioma_guardado()
 
         # Tema por defecto
-        self.tema_actual = 'minimalist'
+        self.tema_actual = 'modern'
         self.css_provider = None
 
         # Configuración de TLS
@@ -755,18 +755,31 @@ class VentanaVPN(Gtk.Window):
         ]
 
         self.tema_menu_items = {}
+        self.tema_checkmarks = {}
         for codigo, label_key, icono in self.temas_info:
             item = Gtk.MenuItem()
             tema_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+
+            # Ícono del tema
             tema_icon = Gtk.Image.new_from_icon_name(icono, Gtk.IconSize.MENU)
+            tema_box.pack_start(tema_icon, False, False, 0)
+
+            # Etiqueta del tema
             tema_label = Gtk.Label(label=self.t(label_key))
             tema_label.set_xalign(0)
-            tema_box.pack_start(tema_icon, False, False, 0)
             tema_box.pack_start(tema_label, True, True, 0)
+
+            # Ícono de checkmark a la derecha (inicialmente invisible)
+            checkmark = Gtk.Image.new_from_icon_name('emblem-default', Gtk.IconSize.MENU)
+            checkmark.set_no_show_all(True)
+            checkmark.hide()
+            tema_box.pack_end(checkmark, False, False, 0)
+
             item.add(tema_box)
             item.connect('activate', self.cambiar_tema, codigo)
             self.temas_submenu.append(item)
             self.tema_menu_items[codigo] = (item, tema_label)
+            self.tema_checkmarks[codigo] = checkmark
 
         # Submenú Idioma
         self.menu_idioma_item = Gtk.MenuItem()
@@ -1061,6 +1074,7 @@ class VentanaVPN(Gtk.Window):
         # Cargar tema guardado y aplicarlo
         self.cargar_tema_guardado()
         self.aplicar_tema(self.tema_actual)
+        self.actualizar_marcador_tema()
 
         # Crear ícono de bandeja del sistema
         self.crear_status_icon()
@@ -1114,11 +1128,20 @@ class VentanaVPN(Gtk.Window):
         except Exception:
             pass
 
+    def actualizar_marcador_tema(self):
+        """Actualiza el checkmark del tema activo"""
+        for codigo, checkmark in self.tema_checkmarks.items():
+            if codigo == self.tema_actual:
+                checkmark.show()
+            else:
+                checkmark.hide()
+
     def cambiar_tema(self, widget, codigo_tema):
         """Cambia el tema de la aplicación"""
         self.tema_actual = codigo_tema
         self.guardar_tema()
         self.aplicar_tema(codigo_tema)
+        self.actualizar_marcador_tema()
 
     def cargar_config_tls(self):
         """Carga la configuración de TLS desde el archivo"""
