@@ -9,6 +9,8 @@ import json
 import os
 import base64
 import socket
+import time
+import select
 
 # Intentar importar requests (opcional)
 try:
@@ -1036,6 +1038,7 @@ class VentanaVPN(Gtk.Window):
         self.entry_password.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "view-reveal-symbolic")
         self.entry_password.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, "Mostrar/Ocultar contraseña")
         self.entry_password.connect("icon-press", self.on_toggle_password_visibility)
+        self.entry_password.connect("activate", self.on_toggle_conexion_clicked)
 
         password_container.pack_start(self.entry_password, False, False, 0)
 
@@ -2233,9 +2236,47 @@ class VentanaVPN(Gtk.Window):
             error_tls = False
             conectado_exitosamente = False
 
+            # Variables para timeout y reconexión
+            tiempo_inicio = time.time()
+            timeout_conexion = 90  # 90 segundos de timeout
+            reconexiones_detectadas = 0
+            max_reconexiones = 3  # Máximo de intentos de reconexión
+            ultimo_error_msg = ""
+
             # Leer la salida en tiempo real
             for linea in self.proceso.stdout:
                 GLib.idle_add(self.agregar_texto, linea)
+
+                # Verificar timeout: si ha pasado mucho tiempo sin conectar
+                tiempo_transcurrido = time.time() - tiempo_inicio
+                if not conectado_exitosamente and tiempo_transcurrido > timeout_conexion:
+                    GLib.idle_add(self.agregar_texto, f"\n=== TIMEOUT: No se pudo conectar después de {timeout_conexion} segundos ===\n")
+                    if ultimo_error_msg:
+                        GLib.idle_add(self.agregar_texto, f"Último error: {ultimo_error_msg}\n")
+                    # Enviar Ctrl+C (SIGINT) al proceso
+                    self.proceso.send_signal(signal.SIGINT)
+                    time.sleep(1)
+                    if self.proceso.poll() is None:
+                        self.proceso.terminate()
+                    break
+
+                # Detectar intentos de reconexión
+                if "Connection reset" in linea or "SIGUSR1" in linea or "Restart pause" in linea or "Attempting reconnect" in linea:
+                    reconexiones_detectadas += 1
+                    ultimo_error_msg = linea.strip()
+                    if reconexiones_detectadas >= max_reconexiones:
+                        GLib.idle_add(self.agregar_texto, f"\n=== Demasiados intentos de reconexión ({reconexiones_detectadas}) ===\n")
+                        GLib.idle_add(self.agregar_texto, f"Último error: {ultimo_error_msg}\n")
+                        # Enviar Ctrl+C (SIGINT) al proceso
+                        self.proceso.send_signal(signal.SIGINT)
+                        time.sleep(1)
+                        if self.proceso.poll() is None:
+                            self.proceso.terminate()
+                        break
+
+                # Capturar mensajes de error para mostrar
+                if "error" in linea.lower() or "failed" in linea.lower() or "cannot" in linea.lower():
+                    ultimo_error_msg = linea.strip()
 
                 # Detectar cuando se conecta exitosamente
                 if "Initialization Sequence Completed" in linea:
@@ -2262,8 +2303,17 @@ class VentanaVPN(Gtk.Window):
             # Esperar a que termine
             self.proceso.wait()
 
+            # Verificar si se detuvo por timeout o reconexiones
+            tiempo_total = time.time() - tiempo_inicio
+            timeout_alcanzado = not conectado_exitosamente and tiempo_total >= timeout_conexion
+            reconexiones_excedidas = reconexiones_detectadas >= max_reconexiones
+
+            # Si hubo timeout o demasiadas reconexiones
+            if timeout_alcanzado or reconexiones_excedidas:
+                GLib.idle_add(self.agregar_texto, self.t('connection_error'))
+                GLib.idle_add(self.mostrar_error_conexion)
             # Si hubo error de TLS, mostrar diálogo para activar TLS 1.0
-            if error_tls:
+            elif error_tls:
                 GLib.idle_add(self.agregar_texto, self.t('connection_error'))
                 GLib.idle_add(self.mostrar_dialogo_tls)
             # Si hubo errores de autenticación o archivo, mostrar error
