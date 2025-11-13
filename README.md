@@ -10,19 +10,37 @@ Urreste García, L. A., Capote Casas, F. E., Castellanos Muriel, J. A., & Rincó
 
 ## Características
 
+### Interfaz y Experiencia de Usuario
 - ✅ Interfaz gráfica intuitiva con GTK3
-- ✅ **Íconos personalizados** en ventana y bandeja del sistema
-- ✅ Soporte para múltiples idiomas (Español 🇨🇴, Inglés 🇬🇧, Chino 🇨🇳, Portugués 🇧🇷, Francés 🇫🇷, Alemán 🇩🇪, Japonés 🇯🇵)
-- ✅ 4 temas visuales (Gerencial, Minimalista, Moderno, Sistema Solar)
-- ✅ Almacenamiento seguro de credenciales (encriptación)
-- ✅ Logs en tiempo real de conexión
-- ✅ **Ícono de bandeja del sistema** con menú contextual
-- ✅ Información de red en tiempo real:
+- ✅ Íconos personalizados en ventana y bandeja del sistema
+- ✅ Soporte multiidioma (Español 🇨🇴, Inglés 🇬🇧, Chino 🇨🇳, Portugués 🇧🇷, Francés 🇫🇷, Alemán 🇩🇪, Japonés 🇯🇵)
+- ✅ 4 temas visuales personalizables:
+  - **Gerencial**: Estilo corporativo profesional
+  - **Minimalista**: Diseño limpio y simple
+  - **Moderno**: Gradientes vibrantes contemporáneos
+  - **Sistema Solar**: Tema oscuro inspirado en el espacio
+- ✅ Atajos de teclado: presiona **Enter** en el campo de contraseña para conectar automáticamente
+
+### Conexión y Seguridad
+- ✅ Gestión inteligente de conexiones:
+  - Timeout automático de 90 segundos para evitar conexiones colgadas
+  - Detección de intentos de reconexión (máximo 3 intentos)
+  - Captura y visualización de mensajes de error de OpenVPN
+  - Terminación limpia del proceso con señal SIGINT
+- ✅ Almacenamiento seguro de credenciales con encriptación Fernet
+- ✅ Archivos de configuración con permisos restrictivos (600)
+- ✅ Clave de encriptación única por usuario y máquina
+- ✅ Soporte para TLS 1.0 en servidores legacy
+
+### Monitoreo y Logs
+- ✅ Logs en tiempo real de conexión OpenVPN
+- ✅ Indicador visual de estado con semáforo (verde/amarillo/rojo)
+- ✅ Información de red actualizada automáticamente:
   - Estado de conexión VPN
-  - IP del túnel VPN
-  - IP local
-  - IP pública
-  - Tipo de conexión (WiFi/Ethernet)
+  - IP del túnel VPN (tun0)
+  - IP local de la máquina
+  - IP pública (con módulo requests)
+  - Tipo de conexión (WiFi con nombre de red / Ethernet)
 
 ## Instalación Rápida
 
@@ -70,62 +88,79 @@ python3 VPN-Desktop-Linux-Conector.py
 
 ### Configuración Inicial
 
-1. Selecciona tu archivo OVPN (proporcionado por tu administrador)
+1. Selecciona tu archivo OVPN (proporcionado por tu administrador de red)
 2. Ingresa tu usuario y contraseña
-3. Las credenciales se guardarán de forma segura y encriptada
-4. Haz clic en "Conectar VPN"
+3. Las credenciales se guardarán automáticamente de forma segura y encriptada
+4. Haz clic en "Conectar VPN" o presiona **Enter** en el campo de contraseña
+
+### Conectar a la VPN
+
+**Opción 1**: Haz clic en el botón "Conectar VPN"
+
+**Opción 2**: Presiona la tecla **Enter** mientras el cursor está en el campo de contraseña
+
+**Comportamiento de la conexión**:
+- La aplicación intentará conectar durante un máximo de 90 segundos
+- Si detecta problemas de reconexión (más de 3 intentos), detendrá automáticamente el proceso
+- Los mensajes de error de OpenVPN se mostrarán en los logs en tiempo real
+- Si la conexión es exitosa, la ventana se minimizará a la bandeja del sistema
 
 ### Cambiar Idioma
 
 1. Ve a Menú → Configuración → Lenguaje
 2. Selecciona el idioma deseado
-3. La interfaz se actualizará automáticamente
+3. La interfaz se actualizará automáticamente sin reiniciar
 
 ### Cambiar Tema
 
 1. Ve a Menú → Configuración → Temas
-2. Selecciona entre:
-   - **Gerencial**: Estilo corporativo con azules y blancos
-   - **Minimalista**: Diseño limpio y simple
-   - **Moderno**: Tema moderno con gradientes vibrantes
-   - **Sistema Solar**: Tema oscuro inspirado en el espacio con colores del sistema solar
+2. Selecciona entre los 4 temas disponibles:
+   - **Gerencial**: Estilo corporativo profesional
+   - **Minimalista**: Diseño limpio y minimalista
+   - **Moderno**: Gradientes vibrantes modernos
+   - **Sistema Solar**: Tema oscuro inspirado en el espacio
+3. El tema se aplica instantáneamente
 
 ## Indicador de Bandeja del Sistema
 
-La aplicación incluye un **ícono de bandeja del sistema** que aparece automáticamente en la barra de tareas:
+La aplicación incluye un ícono de bandeja del sistema que aparece automáticamente en la barra de tareas:
 
-- **Minimizar a bandeja**: Al cerrar la ventana, la aplicación se minimiza en lugar de cerrarse
-- **Clic izquierdo**: Alterna mostrar/ocultar ventana principal
-- **Clic derecho**: Abre menú contextual con:
+### Funcionalidades
+- **Minimizar a bandeja**: Al cerrar la ventana, la aplicación permanece en segundo plano
+- **Clic izquierdo**: Alterna mostrar/ocultar la ventana principal
+- **Clic derecho**: Menú contextual con información en tiempo real:
+  - Estado de conexión (Conectado ✓ / Desconectado)
+  - IP del túnel VPN
+  - IP local
+  - IP pública
+  - Tipo de conexión (WiFi con nombre / Ethernet)
   - Abrir/Restaurar ventana
-  - Ver estado de conexión (Conectado ✓ / Desconectado)
-  - Ver IP VPN
-  - Ver IP Local
-  - Ver IP Pública
-  - Ver tipo de conexión (WiFi con nombre / Ethernet)
   - Salir de la aplicación
 
-El ícono cambia automáticamente según el estado de la conexión VPN.
-
-### Ventajas del Ícono de Bandeja
-
-- ✅ **Sin dependencias adicionales**: Usa `Gtk.StatusIcon` incluido en GTK3
-- ✅ **Sin permisos de root**: Funciona para cualquier usuario
-- ✅ **Universal**: Compatible con todos los entornos de escritorio GTK3
-- ✅ **Actualización automática**: Información en tiempo real cada 5 segundos
+### Características Técnicas
+- ✅ Usa `Gtk.StatusIcon` incluido en GTK3 (sin dependencias adicionales)
+- ✅ Funciona sin permisos de root
+- ✅ Compatible con todos los entornos de escritorio GTK3
+- ✅ Actualización automática cada 5 segundos
+- ✅ Ícono dinámico que cambia según el estado de conexión
 
 ## Dependencias Opcionales
 
-### requests (Python)
+### Módulo requests (Python)
 
-El módulo requests es necesario para obtener la IP pública. Si no está instalado:
-- La aplicación funcionará normalmente
-- La IP pública mostrará "No disponible (instalar requests)"
+El módulo **requests** se utiliza para obtener la dirección IP pública desde servicios externos.
 
-Para instalar:
+**Sin requests instalado**:
+- ✅ La aplicación funciona completamente
+- ⚠️ La IP pública mostrará "No disponible"
+- ✅ Todas las demás funcionalidades están disponibles
+
+**Para instalar requests**:
 ```bash
 pip3 install requests
 ```
+
+Después de instalarlo, reinicia la aplicación para ver tu IP pública en tiempo real.
 
 ## Estructura del Proyecto
 
@@ -162,41 +197,85 @@ Ver `icons/README_ICONS.md` para más detalles sobre la implementación.
 
 ## Seguridad
 
-- Las contraseñas se almacenan **encriptadas** usando Fernet (criptografía simétrica)
-- Los archivos de configuración tienen permisos restrictivos (600)
-- La clave de encriptación es única por usuario y máquina
-- No se almacenan contraseñas en texto plano
+### Protección de Credenciales
+- ✅ Contraseñas encriptadas con **Fernet** (criptografía simétrica de alto nivel)
+- ✅ Clave de encriptación única generada por usuario y máquina
+- ✅ Archivos de configuración con permisos restrictivos Unix (600)
+- ✅ Archivo de credenciales temporales se elimina después de cada uso
+- ✅ No se almacenan contraseñas en texto plano en ningún momento
+
+### Gestión de Procesos
+- ✅ Terminación limpia del proceso OpenVPN con señal SIGINT
+- ✅ Timeout automático para evitar procesos zombis
+- ✅ Detección de estados colgados o en bucle de reconexión
+- ✅ Limpieza automática de archivos temporales al finalizar
 
 ## Solución de Problemas
+
+### Timeout de conexión (90 segundos)
+
+**Síntoma**: La conexión se detiene automáticamente después de 90 segundos mostrando "TIMEOUT".
+
+**Causas posibles**:
+- Servidor VPN no responde o está caído
+- Configuración OVPN incorrecta
+- Problemas de red o firewall bloqueando la conexión
+- Necesidad de configurar TLS 1.0 para servidores legacy
+
+**Solución**:
+1. Verifica que el servidor VPN esté activo
+2. Revisa los logs para identificar el error específico
+3. Si aparece error de TLS, acepta activar TLS 1.0 cuando se solicite
+4. Verifica tu conexión a internet
+
+### Demasiados intentos de reconexión
+
+**Síntoma**: La aplicación detiene la conexión después de 3 intentos de reconexión.
+
+**Causa**: El servidor VPN está rechazando la conexión repetidamente.
+
+**Solución**:
+1. Revisa las credenciales (usuario y contraseña)
+2. Verifica el archivo OVPN
+3. Consulta con tu administrador de red si el servidor está operativo
+4. Revisa los logs para ver el mensaje de error específico
 
 ### El ícono de bandeja no aparece
 
 **Causas posibles**:
-- El entorno de escritorio no soporta bandejas del sistema (algunos entornos modernos las han eliminado)
+- El entorno de escritorio no soporta bandejas del sistema
 - Extensiones del sistema que bloquean íconos de bandeja
 
-**Solución**: La ventana principal funciona normalmente. Puedes minimizarla manualmente o configurar tu entorno de escritorio para mostrar íconos de bandeja.
+**Solución**: La ventana principal funciona normalmente sin el ícono de bandeja.
 
 ### Error de autenticación
 
-Verifica:
+**Verifica**:
 - Usuario y contraseña correctos
-- Archivo OVPN válido
+- Archivo OVPN válido y actualizado
 - Conexión a internet activa
+- Credenciales no expiradas
 
 ### No se puede conectar
 
-Asegúrate de tener permisos de sudo para ejecutar OpenVPN:
+**Asegúrate de tener permisos sudo para OpenVPN**:
 ```bash
 sudo openvpn --version
 ```
 
+Si el comando anterior falla, instala OpenVPN:
+```bash
+sudo apt-get install openvpn
+```
+
 ### La IP pública no se muestra
 
-Instala el módulo requests:
+**Instala el módulo requests**:
 ```bash
 pip3 install requests
 ```
+
+La aplicación funciona sin este módulo, pero no mostrará la IP pública.
 
 ## Licencia
 
@@ -204,15 +283,32 @@ GPL 3.0
 
 ## Contribuciones
 
-Las contribuciones son bienvenidas. Por favor, abre un issue o pull request.
+Las contribuciones son bienvenidas. Por favor:
+1. Haz fork del repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/NuevaCaracteristica`)
+3. Commit tus cambios (`git commit -m 'Agregar nueva característica'`)
+4. Push a la rama (`git push origin feature/NuevaCaracteristica`)
+5. Abre un Pull Request
 
 ## Soporte
 
-Para reportar problemas o solicitar características:
-- Abre un issue en GitHub
-- Incluye los logs de la aplicación
-- Especifica tu versión de Ubuntu/Debian
-- Indica la versión de OpenVPN instalada
+### Reportar Problemas
+
+Para reportar bugs o solicitar nuevas características, abre un issue en GitHub incluyendo:
+
+**Información del sistema**:
+- Distribución de Linux y versión (ej: Ubuntu 22.04)
+- Versión de Python (`python3 --version`)
+- Versión de OpenVPN (`openvpn --version`)
+- Entorno de escritorio (GNOME, KDE, XFCE, etc.)
+
+**Logs de la aplicación**:
+- Copia el contenido completo del área de logs
+- Incluye el mensaje de error específico
+- Indica los pasos para reproducir el problema
+
+**Capturas de pantalla** (opcional):
+- Ayudan a entender mejor el problema visual
 
 ---
 
