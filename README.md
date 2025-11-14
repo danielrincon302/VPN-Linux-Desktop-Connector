@@ -16,10 +16,25 @@ Urreste García, L. A., Capote Casas, F. E., Castellanos Muriel, J. A., & Rincó
 - ✅ Soporte multiidioma (Español 🇨🇴, Inglés 🇬🇧, Chino 🇨🇳, Portugués 🇧🇷, Francés 🇫🇷, Alemán 🇩🇪, Japonés 🇯🇵)
 - ✅ 4 temas visuales personalizables:
   - **Gerencial**: Estilo corporativo profesional
+
+    ![Gerencial](img/i001Gerencial.png)
+
   - **Minimalista**: Diseño limpio y simple
+
+    ![Minimalista](img/i001Minimalista.png)
+
   - **Moderno**: Gradientes vibrantes contemporáneos
+
+    ![Moderno](img/i001Moderno.png)
+
   - **Sistema Solar**: Tema oscuro inspirado en el espacio
+
+    ![Sistema Solar](img/i001SistemaSolar.png)
 - ✅ Atajos de teclado: presiona **Enter** en el campo de contraseña para conectar automáticamente
+- ✅ Modo antisuspensión: permite mantener el screen o pantalla activa, realizando un leve movimiento de puntero cada 30 segundos
+- ✅ Mostrar Consola: permite ver el log de la ejecución de openvpn
+
+  ![Consola](img/i001Consola.png)
 
 ### Conexión y Seguridad
 - ✅ Gestión inteligente de conexiones:
@@ -35,52 +50,46 @@ Urreste García, L. A., Capote Casas, F. E., Castellanos Muriel, J. A., & Rincó
 ### Monitoreo y Logs
 - ✅ Logs en tiempo real de conexión OpenVPN
 - ✅ Indicador visual de estado con semáforo (verde/amarillo/rojo)
-- ✅ Información de red actualizada automáticamente:
+- ✅ Información de red actualizada automáticamente en la barra de tareas:
   - Estado de conexión VPN
   - IP del túnel VPN (tun0)
   - IP local de la máquina
   - IP pública (con módulo requests)
   - Tipo de conexión (WiFi con nombre de red / Ethernet)
 
+  ![Task Menu](img/TaskMenu.png)
+
 ## Instalación Rápida
 
-### Opción 1: Script Automático (Recomendado)
-
 ```bash
-sudo ./instalar_dependencias.sh
+sh install.sh
 ```
 
-### Opción 2: Instalación Manual
+## Instalación Manual
 
-#### Dependencias del Sistema (Ubuntu/Debian)
+Si prefieres instalar manualmente, copia y pega el siguiente código:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-    python3-gi \
-    python3-gi-cairo \
-    gir1.2-gtk-3.0 \
-    openvpn \
-    network-manager
+cd ~ && curl -L https://github.com/danielrincon302/VPN-Linux-Desktop-Connector/archive/refs/heads/main.zip -o vpn-temp.zip &&
+unzip -o -q vpn-temp.zip && rm -rf VPN-Desktop-Linux-Conector 2>/dev/null &&
+mv VPN-Linux-Desktop-Connector-main VPN-Desktop-Linux-Conector &&
+rm vpn-temp.zip && cp ~/VPN-Desktop-Linux-Conector/Run-VPN-Desktop-Linux-Conector.desktop "$(xdg-user-dir DESKTOP)"/ &&
+chmod +x "$(xdg-user-dir DESKTOP)/Run-VPN-Desktop-Linux-Conector.desktop"  &&
+sed -i "s|\$HOME|$HOME|g" "$(xdg-user-dir DESKTOP)/Run-VPN-Desktop-Linux-Conector.desktop"  &&
+chmod +x "$(xdg-user-dir DESKTOP)/Run-VPN-Desktop-Linux-Conector.desktop" &&
+gio set "$(xdg-user-dir DESKTOP)/Run-VPN-Desktop-Linux-Conector.desktop" metadata::trusted true
+echo "✓ Installation complete. Check your desktop icon"
 ```
 
 **Nota**: Esta aplicación **NO requiere permisos de root** para ejecutarse (solo para la instalación de dependencias). El ícono de bandeja usa `Gtk.StatusIcon` que viene incluido con GTK3.
 
-#### Dependencias de Python
-
-```bash
-pip3 install -r requirements.txt
-```
-
-O manualmente:
-
-```bash
-pip3 install cryptography requests
-```
-
 ## Uso
 
 ### Iniciar la aplicación
+
+**Opción 1**: Haz doble clic en el ícono `.desktop` que se instaló en tu escritorio
+
+**Opción 2**: Ejecuta directamente desde la línea de comandos:
 
 ```bash
 python3 VPN-Desktop-Linux-Conector.py
@@ -144,40 +153,17 @@ La aplicación incluye un ícono de bandeja del sistema que aparece automáticam
 - ✅ Actualización automática cada 5 segundos
 - ✅ Ícono dinámico que cambia según el estado de conexión
 
-## Dependencias Opcionales
-
-### Módulo requests (Python)
-
-El módulo **requests** se utiliza para obtener la dirección IP pública desde servicios externos.
-
-**Sin requests instalado**:
-- ✅ La aplicación funciona completamente
-- ⚠️ La IP pública mostrará "No disponible"
-- ✅ Todas las demás funcionalidades están disponibles
-
-**Para instalar requests**:
-```bash
-pip3 install requests
-```
-
-Después de instalarlo, reinicia la aplicación para ver tu IP pública en tiempo real.
-
 ## Estructura del Proyecto
 
 ```
 VPN-Desktop-Linux-Connector/
 ├── VPN-Desktop-Linux-Conector.py    # Aplicación principal
-├── requirements.txt                  # Dependencias de Python
-├── instalar_dependencias.sh         # Script de instalación
-├── INSTALL_DEPENDENCIES.md          # Documentación de dependencias
-├── IMPLEMENTACION_ICONOS.md         # Guía de íconos implementados
 ├── README.md                        # Este archivo
 ├── icons/                           # Íconos de la aplicación
 │   ├── VPN-LDC_16x16.svg           # Ícono 16x16 (reservado)
 │   ├── VPN-LDC_22x22.svg           # Ícono 22x22 (reservado)
 │   ├── VPN-LDC_24x24.svg           # ⭐ Bandeja del sistema
-│   ├── VPN-LDC_32x32.svg           # ⭐ Ventana principal y About
-│   └── README_ICONS.md             # Documentación de íconos
+│   └── VPN-LDC_32x32.svg           # ⭐ Ventana principal y About
 ├── config.txt                       # Credenciales (generado automáticamente)
 ├── idioma.txt                       # Idioma seleccionado
 ├── tema.txt                         # Tema seleccionado

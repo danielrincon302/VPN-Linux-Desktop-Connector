@@ -1901,6 +1901,66 @@ class VentanaVPN(Gtk.Window):
                 font-weight: 600;
                 text-shadow: 0 0 5px rgba(74, 95, 232, 0.5);
             }
+
+            /* Estilos para diálogos */
+            dialog {
+                background-color: #1a1d2e;
+                color: #e8e8e8;
+            }
+
+            dialog box {
+                background-color: #1a1d2e;
+            }
+
+            dialog label {
+                color: #e8e8e8;
+                text-shadow: none;
+            }
+
+            dialog button {
+                background: linear-gradient(135deg, #734500 0%, #8a5c00 30%, #a15c00 70%, #8a5c00 100%);
+                color: #ffffff;
+                border: 2px solid #8a5c00;
+                border-radius: 8px;
+                padding: 7px 14px;
+                font-weight: 700;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(138, 92, 0, 0.5);
+            }
+
+            dialog button:hover {
+                background: linear-gradient(135deg, #8a5c00 0%, #a15c00 30%, #b86e00 70%, #a15c00 100%);
+                border-color: #a15c00;
+                box-shadow: 0 6px 20px rgba(161, 92, 0, 0.6);
+            }
+
+            messagedialog {
+                background-color: #1a1d2e;
+            }
+
+            messagedialog box {
+                background-color: #1a1d2e;
+            }
+
+            messagedialog label {
+                color: #e8e8e8;
+            }
+
+            /* Estilos para el diálogo Acerca de */
+            .about textview {
+                background-color: #ffffff;
+                color: #000000;
+            }
+
+            .about textview text {
+                background-color: #ffffff;
+                color: #000000;
+            }
+
+            .about label {
+                color: #000000;
+                text-shadow: none;
+            }
             """
 
         # Cargar el CSS
@@ -2899,6 +2959,9 @@ VPN Linux Desktop Connector は無料のオープンソースプロジェクト�
                 about_dialog.set_logo(pixbuf)
         except Exception as e:
             print(f"No se pudo cargar el logo: {e}")
+
+        # Aplicar clase CSS para el tema
+        about_dialog.get_style_context().add_class("about")
 
         about_dialog.run()
         about_dialog.destroy()
