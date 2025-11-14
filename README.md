@@ -31,6 +31,7 @@ Urreste García, L. A., Capote Casas, F. E., Castellanos Muriel, J. A., & Rincó
 
     ![Sistema Solar](img/i001SistemaSolar.png)
 - ✅ Atajos de teclado: presiona **Enter** en el campo de contraseña para conectar automáticamente
+- ✅ Forzar TLS 1.0: Si tu cliente OpenVPN es de la versión 2.3.6 a la 2.3.2, prueba a añadir tls-version-min 1.0
 - ✅ Modo antisuspensión: permite mantener el screen o pantalla activa, realizando un leve movimiento de puntero cada 30 segundos
 - ✅ Mostrar Consola: permite ver el log de la ejecución de openvpn
 
